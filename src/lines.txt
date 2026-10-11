@@ -1,0 +1,46 @@
+title|Alex's River Run!|amy|1.15
+go|Let's paddle, Alex!|amy|1.15
+go2|Paddle left, paddle right! Here we go!|ryan|1.04
+wb|Woolly bear saved! Great job, Alex!|amy|1.15
+wb2|Another woolly bear saved! You're a hero, Alex!|amy|1.15
+wb3|Woolly bear rescue! Way to go, Alex!|ryan|1.04
+scoop|Got a woolly bear! Take it to the shore!|amy|1.15
+dadhat|Hey! That goose took my hat! Whoa!|ryan|1.04
+dadfrog|Ooh, a froggy! Come here, little guy! Whoa!|ryan|1.04
+dadturn|Lean, Alex, lean! Whoa, whoa, whoa!|ryan|1.04
+dadsneeze|Ah, ah, ahh, ahhh, CHOO!|ryan|1.04
+dadhelp|Blub blub! Alex! Paddle over and scoop me up!|ryan|1.04
+dadsaved|Thanks, buddy! I'm soggy, but I'm happy!|ryan|1.04
+dadfish|Hey, is there a fish on my head?|ryan|1.04
+dadpad|Look, Alex! I got a fancy lily pad hat!|ryan|1.04
+poop|Eww! Goose poop! Gross!|amy|1.15
+poop2|Splat! That goose pooped on us!|ryan|1.04
+bonk|Bonk! Watch out, Alex!|amy|1.15
+bonk2|Oof! Bonkity bonk!|ryan|1.04
+duck|Duck! Low bridge!|ryan|1.04
+tunnel|It's dark in here! Headlamp on!|amy|1.15
+rubber|You found the rubber duck! Squeak squeak!|amy|1.15
+turtle|Hi, turtle!|amy|1.15
+frog|Hi, froggy!|amy|1.15
+check|Checkpoint buoy!|amy|1.15
+oops|Oopsie! Let's try again from the buoy!|amy|1.15
+l1|Level one. Town Canal!|amy|1.15
+l2|Level two. Willow Bend!|amy|1.15
+l3|Level three. Fall Leaf Marsh!|amy|1.15
+l4|Level four. Beaver Pond!|amy|1.15
+l5|Level five. The Rapids!|amy|1.15
+rapids|Hold on tight! Here come the rapids!|ryan|1.04
+boss|Uh oh! It's a giant grumpy snapping turtle!|amy|1.15
+bosstip|Dodge his snaps! When he's dizzy, feed him a flower!|amy|1.15
+yum|Yum! He's getting happier!|amy|1.15
+yum2|One more flower, Alex!|amy|1.15
+happy|He's happy now! What a friendly turtle!|amy|1.15
+clear|Level clear! Great job, Alex!|amy|1.15
+did|You did it, Alex! You're a woolly bear hero!|ryan|1.04
+fast|Paddle left, paddle right! Faster, Alex!|amy|1.15
+burp|Excuse me!|ryan|1.04
+unlock|New canoe unlocked!|amy|1.15
+dam|Find the gap in the beaver dam!|amy|1.15
+nice|Nice paddling, Alex!|ryan|1.04
+shore|Paddle to the shore to drop it off!|amy|1.15
+gotdad|Got you, Dad!|amy|1.15
