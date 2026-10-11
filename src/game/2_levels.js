@@ -1,26 +1,28 @@
 // ================= levels: river geometry + procedural (seeded) layout =================
 // World: canoe paddles "up" the screen (y decreases). y=0 start, finish at y=-len.
+// A real fall trip down the Huron River: Proud Lake Recreation Area -> marshes -> beaver backwater -> the bridges and a stone tunnel ->
+// downtown Milford (Central Park on the Mill Pond). Level 5's fast water is make-believe (the real river here is gentle).
 const LEVELS=[
-  {key:'canal',name:'Town Canal',sub:'Stone tunnels & low bridges',music:'canal',len:7200,cur:34,hw:168,amp:26,wl:2600,seed:11,
-   water:'#3d7f8f',water2:'#5aa3ad',bank:'#7f9a52',edge:'#8d8a84',style:'canal',
-   tunnels:[[0.25,700],[0.66,760]],bridges:[0.13,0.47,0.86],dams:[],dad:[[0.19,'hat'],[0.55,'sneeze'],[0.79,'frog']],
-   w:{rocks:2,log:3,fish:1,burp:0,cattail:0,wave:0},geese:[0.36,0.92],bears:6,step:[118,180],gap:118},
-  {key:'willow',name:'Willow Bend',sub:'Twisty turns & weeping willows',music:'willow',len:7800,cur:40,hw:158,amp:150,wl:2300,seed:23,
+  {key:'proud',name:'Proud Lake',sub:'Proud Lake Recreation Area, Michigan',music:'willow',len:7200,cur:32,hw:170,amp:105,wl:2500,seed:23,
    water:'#3f7a6a',water2:'#6aa58c',bank:'#6f9a48',edge:'#7a6040',style:'willow',
-   tunnels:[],bridges:[0.62],dams:[],dad:[[0.24,'turn'],[0.5,'hat'],[0.8,'turn']],
-   w:{rocks:3,log:3,fish:2,burp:1,cattail:0,wave:0},geese:[0.36,0.7],bears:7,step:[112,170],gap:110},
-  {key:'marsh',name:'Fall Leaf Marsh',sub:'Lily pads, leaves & burping fish',music:'marsh',len:7800,cur:30,hw:190,amp:80,wl:2800,seed:37,
+   tunnels:[],bridges:[0.62],dams:[],dad:[[0.22,'hat'],[0.5,'turn'],[0.8,'sneeze']],
+   w:{rocks:2,log:3,fish:1,burp:0,cattail:0,wave:0},geese:[0.36,0.82],bears:6,step:[118,180],gap:118},
+  {key:'marsh',name:'Huron River Marsh',sub:'Cattails & tree-lined banks below Proud Lake',music:'marsh',len:7600,cur:30,hw:190,amp:80,wl:2800,seed:37,
    water:'#4a6f5c',water2:'#7b9b6f',bank:'#9a8f4a',edge:'#6d5a32',style:'marsh',
    tunnels:[],bridges:[0.45],dams:[],dad:[[0.22,'frog'],[0.52,'sneeze'],[0.8,'frog']],
-   w:{rocks:1,log:2,fish:2,burp:4,cattail:3,wave:0},geese:[0.33,0.66,0.9],bears:9,step:[108,165],gap:110},
-  {key:'pond',name:'Beaver Pond',sub:'Find the gaps in the beaver dams',music:'pond',len:8200,cur:22,hw:200,amp:60,wl:3000,seed:41,
+   w:{rocks:1,log:2,fish:2,burp:3,cattail:3,wave:0},geese:[0.33,0.66,0.9],bears:8,step:[112,168],gap:112},
+  {key:'pond',name:'Beaver Backwater',sub:'Busy Michigan beavers! Find the gaps',music:'pond',len:8000,cur:22,hw:200,amp:60,wl:3000,seed:41,
    water:'#356f86',water2:'#5d98ad',bank:'#5f8a44',edge:'#6b5232',style:'pond',
-   tunnels:[[0.58,620]],bridges:[],dams:[0.16,0.36,0.5,0.78,0.92],dad:[[0.24,'hat'],[0.44,'turn'],[0.7,'sneeze']],
+   tunnels:[],bridges:[],dams:[0.16,0.36,0.5,0.78,0.92],dad:[[0.24,'hat'],[0.44,'turn'],[0.7,'sneeze']],
    w:{rocks:2,log:5,fish:2,burp:2,cattail:1,wave:0},geese:[0.3,0.64,0.85],bears:8,step:[108,165],gap:106},
-  {key:'rapids',name:'The Rapids',sub:'Hold on tight! Then... the boss!',music:'rapids',len:7400,cur:92,hw:152,amp:95,wl:1900,seed:53,
+  {key:'canal',name:'Bridges into Milford',sub:'Five bridges & a dark stone tunnel',music:'canal',len:7600,cur:38,hw:168,amp:26,wl:2600,seed:11,
+   water:'#3d7f8f',water2:'#5aa3ad',bank:'#7f9a52',edge:'#8d8a84',style:'canal',
+   tunnels:[[0.25,700],[0.64,760]],bridges:[0.1,0.42,0.52,0.82,0.92],dams:[],dad:[[0.17,'hat'],[0.56,'sneeze'],[0.76,'frog']],
+   w:{rocks:3,log:3,fish:2,burp:1,cattail:0,wave:0},geese:[0.36,0.88],bears:7,step:[112,172],gap:114},
+  {key:'rapids',name:'Mill Pond Rush',sub:'Make-believe fast water to the Milford Mill Pond!',music:'rapids',len:7000,cur:80,hw:160,amp:85,wl:1900,seed:53,
    water:'#2f6f93',water2:'#7fc2d8',bank:'#5b7c45',edge:'#6f6f6f',style:'rapids',
    tunnels:[],bridges:[0.4],dams:[],dad:[[0.3,'turn'],[0.66,'hat']],
-   w:{rocks:6,log:2,fish:3,burp:0,cattail:0,wave:4},geese:[0.5],bears:7,step:[88,135],gap:100,boss:true}
+   w:{rocks:5,log:2,fish:2,burp:0,cattail:0,wave:4},geese:[0.5],bears:7,step:[96,145],gap:112,boss:true}
 ];
 const ARENA_LEN=360,ARENA_HW=215,BS=0.72;
 let L=null;
@@ -67,7 +69,7 @@ function buildLevel(i){const D=LEVELS[i];seed=D.seed*7919+13;const len=D.len,end
     else if(kind==='wave'){const wx=c+srr(-hw*0.6,hw*0.6);L.obj.push({t:'wave',x:wx,y,w:srr(60,110),push:srr(-60,60)});
       if(srand()<0.6){const rad=srr(13,20),rx=c+srr(-hw+12,hw-12);if(Math.abs(rx-gx)>gw/2+rad)addRock(rx,y-50,rad)}}
     // acorn trail through the gap
-    if(srand()<0.5){for(let k=0;k<3;k++)L.obj.push({t:'acorn',x:gx+Math.sin(k)*8,y:y+50-k*34})}}
+    if(srand()<0.5){const pk=srand()<0.3;for(let k=0;k<3;k++)L.obj.push({t:'acorn',x:gx+Math.sin(k)*8,y:y+50-k*34,pk:pk&&k===1?1:0})}}
   L.removed=ensurePassable(D);
   // marsh lily pads (decor, can hold frogs)
   if(D.style==='marsh'||D.style==='pond'||D.style==='willow'){for(let d=600;d<len;d+=srr(70,160)){const yy=-d,c=riverC(yy),hw=riverHW(yy),side=srand()<0.5?-1:1;
@@ -81,7 +83,7 @@ function buildLevel(i){const D=LEVELS[i];seed=D.seed*7919+13;const len=D.len,end
     while(tries<40&&(inTunnel(by)||blockers.some(b=>dist2(b.x,b.y,bx,by)<(b.r+52)**2)||L.dams.some(d=>Math.abs(d.y-by)<70)||L.bridges.some(b=>Math.abs(b.y-by)<80)));
     L.obj.push({t:'bear',x:bx,y:by,raft:srand()<0.65?'leaf':'stick',ph:srand()*TAU,st:'float',rot:srr(-0.6,0.6),col:spick(['#f2b631','#ef7d22','#e2552a','#f4cf3a'])});L.bearsTotal++}
   // hidden rubber duck: tucked against a bank (under a willow / behind cattails / near the dam / tunnel nook)
-  {let dy=-len*({canal:0.29,willow:0.43,marsh:0.6,pond:0.88,rapids:0.56}[D.key]);if(D.key==='canal')dy=L.tunnels[0].y0-300;
+  {let dy=-len*({canal:0.29,proud:0.43,marsh:0.6,pond:0.88,rapids:0.56}[D.key]);if(D.key==='canal')dy=L.tunnels[0].y0-300;
     const c=riverC(dy),hw=riverHW(dy),side=D.key==='marsh'||D.key==='pond'?1:-1;L.obj.push({t:'rduck',x:c+side*(hw-16),y:dy,got:0});
     if(D.key==='marsh')L.obj.push({t:'cattail',x:c+side*(hw-4),y:dy+46,r:22,deco:1})}
   // bank decoration (trees, willows, lamps, houses, reeds)
@@ -95,6 +97,13 @@ function buildLevel(i){const D=LEVELS[i];seed=D.seed*7919+13;const len=D.len,end
     if(k==='willow'){L.deco.push({k,x:c+side*(hw+srr(4,26)),y:yy,side,s:srr(0.9,1.2),v:(srand()*4)|0})}
     else L.deco.push({k,x,y:yy,side,s:srr(0.75,1.25),v:(srand()*6)|0})}
   if(D.style==='pond')L.deco.push({k:'lodge',x:riverC(-len*0.52)+riverHW(-len*0.52)+70,y:-len*0.52,s:1,v:0,side:1});
+  // Michigan wildlife & touches on the banks
+  {const S=D.style,c0=riverC(-150),h0=riverHW(-150);const mx=c0-h0-48;L.deco=L.deco.filter(d=>dist2(d.x,d.y,mx,-150)>95*95);L.deco.push({k:'mitten',x:mx,y:-150,s:1,v:0,side:-1});
+    const put=(k,n,off0,off1,f0,f1)=>{for(let i=0;i<n;i++){const yy=-len*srr(f0+(f1-f0)*i/n,f0+(f1-f0)*(i+0.8)/n);if(inTunnel(yy))continue;const side=srand()<0.5?-1:1,c=riverC(yy),hw=riverHW(yy);L.deco.push({k,x:c+side*(hw+srr(off0,off1)),y:yy,s:1,v:(srand()*3)|0,side,f:side<0?1:-1})}};
+    if(S==='willow'||S==='marsh'){put('heron',3,-6,8,0.1,0.95);put('crane',2,60,150,0.15,0.9)}
+    if(S==='willow'||S==='pond'||S==='rapids')put('deer',2,50,140,0.1,0.9);
+    if(S==='pond'||S==='rapids'||S==='willow')put('cabin',S==='willow'?1:3,120,200,0.1,0.9);
+    if(D.boss){const ya=-len-80-ARENA_LEN-60,ca=riverC(ya);L.deco.push({k:'sign',t1:'WELCOME TO',t2:'MILFORD',x:ca-ARENA_HW-80,y:ya,s:1,v:0,side:-1});L.deco.push({k:'sign',t1:'MILFORD',t2:'CENTRAL PARK',x:ca+ARENA_HW+80,y:ya-40,s:1,v:0,side:1})}}
   L.deco.sort((a,b)=>b.y-a.y);
   // floating fall leaves (decor)
   L.leaves=[];for(let k=0;k<60;k++)L.leaves.push({x:srr(-200,200),y:srr(0,-len),rot:srand()*TAU,vr:srr(-0.3,0.3),c:(srand()*5)|0,s:srr(0.6,1.1)});

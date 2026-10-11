@@ -4,7 +4,7 @@
 # gameplay systems, and a 4x CPU-throttle performance run.   Usage: python3 src/test.py [url]
 import asyncio,sys,json,os
 from playwright.async_api import async_playwright
-BASE=sys.argv[1] if len(sys.argv)>1 else 'file:///workspace/alex-river-run/index.html'
+BASE=sys.argv[1] if len(sys.argv)>1 and ':' in sys.argv[1] else 'file:///workspace/alex-river-run/index.html'
 OUT='/workspace/alex-river-run/shots/';os.makedirs(OUT,exist_ok=True);ok=True;NCLIPS=len([l for l in open('/workspace/alex-river-run/src/lines.txt') if l.strip()])
 RES=[]
 def chk(n,c,i=''):
@@ -174,4 +174,4 @@ async def main():
         if not only or only=='perf': await perf(b)
         await b.close()
     print(f'{sum(1 for r in RES if r[1])}/{len(RES)} passed');print('ALL OK' if ok else 'SOME FAILED');sys.exit(0 if ok else 1)
-asyncio.run(main())
+if __name__=='__main__':asyncio.run(main())

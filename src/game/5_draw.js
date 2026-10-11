@@ -23,7 +23,8 @@ function drawReflections(){if(L.D.style==='rapids')return;X.globalAlpha=0.2;for(
 function drawDeco(over){for(const d of L.deco){if(!vis(d.y,90))continue;const isW=d.k==='willow';if(isW!==!!over)continue;
   switch(d.k){case'tree':dspr(treeSpr(d.v),d.x,d.y,0.8*d.s);break;case'pine':dspr(pineSpr(d.v%3),d.x,d.y,0.9*d.s);break;case'willow':dspr(willowSpr(d.v),d.x,d.y,0.85*d.s,0,0.93);break;
     case'bush':dspr(bushSpr(d.v),d.x,d.y,d.s);break;case'reeds':dspr(reedsSpr(d.v%4),d.x,d.y,d.s);break;case'house':dspr(houseSpr(d.v),d.x+d.side*30,d.y,1);break;case'lamp':dspr(lampSpr(),d.x,d.y,1);break;
-    case'bench':dspr(benchSpr(),d.x,d.y,1,d.side*Math.PI/2);break;case'boulder':dspr(boulderSpr(d.v%3),d.x,d.y,d.s);break;case'lodge':dspr(lodgeSpr(),d.x,d.y,1);break}}}
+    case'bench':dspr(benchSpr(),d.x,d.y,1,d.side*Math.PI/2);break;case'boulder':dspr(boulderSpr(d.v%3),d.x,d.y,d.s);break;case'lodge':dspr(lodgeSpr(),d.x,d.y,1);break;case'heron':dspr(heronSpr(d.f),d.x,d.y-20,1.3);break;case'crane':dspr(craneSpr(d.f),d.x,d.y-20,1.3);break;case'deer':dspr(deerSpr(d.f),d.x,d.y-12,1.25);break;
+    case'cabin':dspr(cabinSpr(d.v),d.x+d.side*30,d.y,1);break;case'mitten':dspr(mittenSpr(),d.x,d.y,1);break;case'sign':dspr(signSpr(d.t1,d.t2),d.x,d.y,1);break}}}
 function drawLeaves(){const cur=L.cur;for(const f of L.leaves){const y=f.y;if(!vis(y,20))continue;const x=riverC(y)+f.x*(riverHW(y)/200);dspr(leafSpr(f.c),x+Math.sin(T*0.6+f.rot)*3,y,f.s*0.75,f.rot+T*f.vr)}}
 function drawObjects(){const D=L.D;
   for(const o of L.obj){if(!vis(o.y,o.t==='dam'?60:70))continue;
@@ -38,8 +39,8 @@ function drawObjects(){const D=L.D;
       case'dam':drawDam(o);break;
       case'cattail':for(let i=0;i<9;i++){const a=i/9*TAU,r=o.r*0.6*hsh(i+o.y);const x=o.x+Math.cos(a)*r,y=o.y+Math.sin(a)*r;line(x,y+5,x+1,y-6,'#6b8a34',2);ell(x+1,y-8,2.4,5.5,'#6b3e1e')}break;
       case'bear':drawBearObj(o);break;
-      case'acorn':if(!o.got)drawAcorn(o.x,o.y,T);break;
-      case'friend':{const ox=o.on?o.on.x:o.x,oy=o.on?o.on.y:o.y,w=o.waved&&T-o.waved<2.5;if(o.k==='frog')drawFrog(ox,oy-1,w,T);else drawTurtle(ox+(o.on?10:0),oy-(o.on?4:0),w,T,0.95);break}
+      case'acorn':if(!o.got){if(o.pk)drawPetoskey(o.x,o.y,T);else drawAcorn(o.x,o.y,T)}break;
+      case'friend':{const ox=o.on?o.on.x:o.x,oy=o.on?o.on.y:o.y,w=o.waved&&T-o.waved<2.5;if(o.k==='frog')drawFrog(ox,oy-1,w,T);else drawPainted(ox+(o.on?10:0),oy-(o.on?4:0),w,T,0.95);break}
       case'rduck':if(!o.got){drawRubberDuck(o.x,o.y,T);if((T%3)<0.25)circ(o.x+6,o.y-8,1.8+Math.sin(T*30),'rgba(255,255,255,0.9)')}break;
       case'fish':if(o.st==='warn'){const k=o.tt/0.75;X.beginPath();X.ellipse(o.x-o.dir*70,o.y,10+k*10,5+k*5,0,0,TAU);X.strokeStyle='rgba(255,255,255,'+(0.8-k*0.4)+')';X.lineWidth=2;X.stroke();ell(o.x-o.dir*70,o.y,6,3,'rgba(255,160,60,0.5)')}
         else if(o.st==='jump'){ell(o.fx,o.fy+2,10,4,'rgba(0,30,40,0.3)');drawFish(o.fx,o.fy,o.h,o.dir>0?Math.PI+(o.tt/1.05-0.5)*1.4:-(o.tt/1.05-0.5)*1.4,'#ff9a3c')}break;
@@ -140,7 +141,7 @@ function drawBoss(){const b=boss;if(!b)return;const happy=b.st==='happy',rise=b.
   for(const f of flowers){drawFlower(f.x,f.y+Math.sin(T*2+f.x)*2,T,0.9);if(!flowerCarry)txt('\u25BC',f.x,f.y-22+Math.sin(T*6)*3,10,'#ff9bd0',{sw:2})}
   // mood meter
   if(state==='play'||state==='bosswin'){const x0=b.x-60,y0=Math.max(camY+70,b.y-60);rrect(x0,y0,120,16,8);X.fillStyle='rgba(0,0,0,0.4)';X.fill();for(let i=0;i<3;i++){txt('\u2665',x0+30+i*30,y0+8,14,i<b.mood?'#ff6fb5':'rgba(255,255,255,0.35)',{sw:0})}
-    txt(happy?'HAPPY!':'GRUMPY',b.x,y0-10,11,'#fff',{sw:3})}}
+    txt(happy?'HAPPY OLD MOSSBACK!':'OLD MOSSBACK (GRUMPY)',b.x,y0-10,11,'#fff',{sw:3})}}
 function drawParts(){for(const p of parts){const k=p.life/p.max;
   if(p.k==='ring'){const r=lerp(p.r0,p.r1,k);X.beginPath();X.ellipse(p.x,p.y,r,r*0.6,0,0,TAU);X.strokeStyle='rgba('+p.col+','+(0.8*(1-k))+')';X.lineWidth=2;X.stroke()}
   else if(p.k==='conf'){X.save();X.translate(p.x,p.y);X.rotate(p.rot);X.fillStyle=p.col;X.fillRect(-p.sz/2,-p.sz/4,p.sz,p.sz/2);X.restore()}

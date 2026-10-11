@@ -1,16 +1,16 @@
 // ================= gameplay: paddling physics, hazards, rescues, Dad's dunks, boss =================
 let state='title',T=0,stT=0,TS=1,lvI=0,paused=false,camX=0,camY=0,anchor=250,shake=0,parts=[],floats=[],banner=null,card=null;
-let hearts=3,score=0,acorns=0,bearsLv=0,lvTime=0,runTime=0,runFull=false,run=null,boat=null,dad=null,carry=[],checkpoint=null,inv=0,geese=[],poops=[],smear=[],boss=null,flowers=[],flowerCarry=0;
+let hearts=3,score=0,acorns=0,stones=0,bearsLv=0,lvTime=0,runTime=0,runFull=false,run=null,boat=null,dad=null,carry=[],checkpoint=null,inv=0,geese=[],poops=[],smear=[],boss=null,flowers=[],flowerCarry=0;
 let lvStats=null,endStats=null,clearInfo=null,oopsN=0,saidOnce={},cov={n:0,viol:0,ex:[]},hintT=0;
 const MAXH=3,STROKE_REP=0.42,BOW=-38;
-function newRun(i){runFull=i===0;run={score:0,bears:0,bearsTotal:0,acorns:0,ducks:0,dunks:0,time:0,bonks:0,waves:0,levels:0};startLevel(i)}
+function newRun(i){runFull=i===0;run={score:0,bears:0,bearsTotal:0,acorns:0,stones:0,ducks:0,dunks:0,time:0,bonks:0,waves:0,levels:0};startLevel(i)}
 function startLevel(i){lvI=i;buildLevel(i);const y0=-40;
   boat={x:riverC(y0),y:y0,vx:0,s:0,ang:0,side:-1,ph:1,dph:1,rhythm:0,lastStroke:-9,repT:0,brake:0,duck:0,spin:0,wave:0,cheer:0,turn:0,maxRhythm:0};
   dad={st:'boat',k:'',t:0,x:0,y:0,vx:0,vy:0,soggy:0,hat:1,lean:0,sneeze:0,reach:0,side:1,h:0};
-  hearts=MAXH;score=0;acorns=0;bearsLv=0;lvTime=0;carry=[];checkpoint={y:y0,x:boat.x};inv=0;geese=[];poops=[];smear=[];boss=null;flowers=[];flowerCarry=0;parts=[];floats=[];banner=null;saidOnce={};oopsN=0;
+  hearts=MAXH;score=0;acorns=0;stones=0;bearsLv=0;lvTime=0;carry=[];checkpoint={y:y0,x:boat.x};inv=0;geese=[];poops=[];smear=[];boss=null;flowers=[];flowerCarry=0;parts=[];floats=[];banner=null;saidOnce={};oopsN=0;
   lvStats={dunks:0,bonks:0,waves:0,duck:0};camY=boat.y-anchor;camX=boat.x-VW/2;
   state='card';stT=0;paused=false;card={t:0};clearInput();AUD.setTheme(L.D.music);setTimeout(()=>say('l'+(i+1),3),350);hintT=0}
-function startPlay(){if(state!=='card')return;state='play';stT=0;card=null;clearInput();say(lvI===4?'rapids':pick(['go','go2']),2)}
+function startPlay(){if(state!=='card')return;state='play';stT=0;card=null;clearInput();say(lvI===4?'rapids':pick(['go','go2']),2);if(lvI===0)setTimeout(()=>{if(state==='play'&&lvI===0)say('michigan',1)},4200)}
 // ---------- particles / floating text ----------
 function splash(x,y,n,sp,col){for(let i=0;i<n;i++){const a=rr(0,TAU),s=rr(0.3,1)*sp;parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:0,max:rr(0.35,0.8),sz:rr(1.5,3.5),col:col||'rgba(235,250,255,0.9)',k:'drop',g:0})}}
 function ring(x,y,r0,r1,dur,col){parts.push({x,y,r0,r1,life:0,max:dur,k:'ring',col:col||'255,255,255'})}
@@ -62,7 +62,7 @@ function collide(){const cs=canoeCircles();
 function stepObjects(dt){const cs=canoeCircles(),bw=bowPos();
   for(const o of L.obj){if(o.y>boat.y+500||o.y<boat.y-700)continue;
     if(o.t==='log'){o.x=o.x0+Math.sin(T*0.35+o.ph)*o.vx*2.2;o.ang+=Math.sin(T*0.2+o.ph)*0.02*dt}
-    else if(o.t==='acorn'&&!o.got){for(const c of cs)if(dist2(c.x,c.y,o.x,o.y)<(c.r+12)**2){o.got=1;acorns++;run.acorns++;score+=10;AUD.SFX.acorn();floatTxt('+10',o.x,o.y-10,'#ffe14d',13);break}}
+    else if(o.t==='acorn'&&!o.got){for(const c of cs)if(dist2(c.x,c.y,o.x,o.y)<(c.r+12)**2){o.got=1;if(o.pk){stones++;run.stones++;score+=25;AUD.SFX.acorn();setTimeout(()=>AUD.SFX.acorn(),90);floatTxt('Petoskey stone! +25',o.x,o.y-12,'#e0e0e0',13);if(!saidOnce.stone){saidOnce.stone=1;say('stone',1)}}else{acorns++;run.acorns++;score+=10;AUD.SFX.acorn();floatTxt('+10',o.x,o.y-10,'#ffe14d',13)}break}}
     else if(o.t==='friend'&&!o.waved){if(Math.abs(o.y-boat.y)<50&&Math.abs(o.x-boat.x)<130){o.waved=T;boat.wave=1.1;score+=25;lvStats.waves++;run.waves++;AUD.SFX.wave();floatTxt('Hi! +25',o.x,o.y-16,'#b2ff59',13);say(o.k,1,9)}}
     else if(o.t==='bear'){if(o.st==='float'){o.ph+=dt;if(dist2(bw.x,bw.y,o.x,o.y)<38*38||dist2(boat.x,boat.y,o.x,o.y)<30*30){o.st='carry';carry.push(o);AUD.SFX.scoop();floatTxt('Scooped!',o.x,o.y-14,'#ffcc80',14);
         if(!saidOnce.scoop){saidOnce.scoop=1;say('scoop',2)}else if(!saidOnce.shore&&carry.length>=2){saidOnce.shore=1;say('shore',1)}}}

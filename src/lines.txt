@@ -24,17 +24,17 @@ turtle|Hi, turtle!|amy|1.15
 frog|Hi, froggy!|amy|1.15
 check|Checkpoint buoy!|amy|1.15
 oops|Oopsie! Let's try again from the buoy!|amy|1.15
-l1|Level one. Town Canal!|amy|1.15
-l2|Level two. Willow Bend!|amy|1.15
-l3|Level three. Fall Leaf Marsh!|amy|1.15
-l4|Level four. Beaver Pond!|amy|1.15
-l5|Level five. The Rapids!|amy|1.15
-rapids|Hold on tight! Here come the rapids!|ryan|1.04
-boss|Uh oh! It's a giant grumpy snapping turtle!|amy|1.15
+l1|Level one. Proud Lake!|amy|1.15
+l2|Level two. The Huron River marsh!|amy|1.15
+l3|Level three. Beaver Backwater!|amy|1.15
+l4|Level four. The bridges into Milford!|amy|1.15
+l5|Level five. The Mill Pond Rush!|amy|1.15
+rapids|Hold on tight! Fast water ahead!|ryan|1.04
+boss|Uh oh! It's Old Mossback, the grumpy snapping turtle of the Huron River!|amy|1.15
 bosstip|Dodge his snaps! When he's dizzy, feed him a flower!|amy|1.15
 yum|Yum! He's getting happier!|amy|1.15
 yum2|One more flower, Alex!|amy|1.15
-happy|He's happy now! What a friendly turtle!|amy|1.15
+happy|Old Mossback is happy now! What a friendly turtle!|amy|1.15
 clear|Level clear! Great job, Alex!|amy|1.15
 did|You did it, Alex! You're a woolly bear hero!|ryan|1.04
 fast|Paddle left, paddle right! Faster, Alex!|amy|1.15
@@ -44,3 +44,7 @@ dam|Find the gap in the beaver dam!|amy|1.15
 nice|Nice paddling, Alex!|ryan|1.04
 shore|Paddle to the shore to drop it off!|amy|1.15
 gotdad|Got you, Dad!|amy|1.15
+milford|Welcome to Milford, Alex! Who wants cider and donuts?|ryan|1.04
+dadswim|Never mind, I'll doggy paddle! Here I come!|ryan|1.04
+stone|A Petoskey stone! That's Michigan's state stone!|amy|1.15
+michigan|Look, Alex! A mitten sign. We're right here in Michigan!|ryan|1.04

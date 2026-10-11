@@ -22,7 +22,7 @@ const approach=(v,t,d)=>v<t?Math.min(v+d,t):Math.max(v-d,t);
 const dist2=(ax,ay,bx,by)=>(ax-bx)*(ax-bx)+(ay-by)*(ay-by);
 // ---------- persistent prefs (all local) ----------
 const LS={get(k,d){try{const v=localStorage.getItem('arr_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('arr_'+k,JSON.stringify(v))}catch(e){}}};
-const CANOES=[{id:'silver',name:'Silver Canoe',need:'Ready to go!'},{id:'rocket',name:'Rocket Canoe',need:'Clear Willow Bend'},{id:'pirate',name:'Pirate Canoe',need:'Find 3 rubber ducks'},{id:'hotdog',name:'Hot Dog Canoe',need:'Make the turtle happy'}];
+const CANOES=[{id:'silver',name:'Silver Canoe',need:'Ready to go!'},{id:'rocket',name:'Rocket Canoe',need:'Clear Huron River Marsh'},{id:'pirate',name:'Pirate Canoe',need:'Find 3 rubber ducks'},{id:'hotdog',name:'Hot Dog Canoe',need:'Make the turtle happy'}];
 let unlockLv=LS.get('unlock',1),bestT=LS.get('best',{}),canoesOwned=LS.get('canoes',['silver']),canoeSel=LS.get('canoe','silver'),ducksFound=LS.get('ducks',[]),steerMode=LS.get('steer2','arrow'),board=LS.get('board',[]),lifeBears=LS.get('bears',0);
 if(!canoesOwned.includes(canoeSel))canoeSel='silver';
 // ---------- on-screen controls layout (CSS px) ----------

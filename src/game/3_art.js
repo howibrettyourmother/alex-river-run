@@ -150,3 +150,42 @@ function poopSpr(v){return spr('poop'+v,120,120,()=>{X.fillStyle='rgba(240,244,2
 // reflection version of a scenery sprite: blurred-ish, lightened, no drop shadow (so it never reads as a hazard)
 const RF=new Map();function reflSpr(s){let r=RF.get(s);if(r)return r;const c=document.createElement('canvas');c.width=Math.ceil(s.c.width/3);c.height=Math.ceil(s.c.height/3);const g=c.getContext('2d');
   g.drawImage(s.c,0,0,c.width,c.height);g.globalCompositeOperation='source-atop';g.fillStyle='rgba(255,255,255,0.45)';g.fillRect(0,0,c.width,c.height);r={c,w:s.w,h:s.h};RF.set(s,r);return r}
+// ---------- Michigan touches (all original procedural art) ----------
+// painted turtle: dark shell with a red-orange rim, yellow-striped head
+function drawPainted(x,y,wave,t,sc){X.save();X.translate(x,y);X.scale(sc||1,sc||1);const w=wave?Math.sin(t*14)*5:0;
+  for(const [a,b,r] of [[-8,-5,-0.6],[9+(wave?3:0),-5+w*0.8,0.6+w*0.1],[-7,7,0.6],[7,7,-0.6]])ell(a,b,4,2.4,'#3d4a2a',r);
+  ell(0,-11,4,4.6,'#34402a');line(-1.6,-14.5,-1.6,-7,'#ffd23f',0.9);line(1.6,-14.5,1.6,-7,'#ffd23f',0.9);circ(-2.3,-12.5,0.8,'#111');circ(2.3,-12.5,0.8,'#111');
+  ell(0,0,10,11,'#d4502a');ell(0,0,8.6,9.6,'#2f3a24');X.strokeStyle='#59683e';X.lineWidth=0.8;for(const yy of [-3.5,3.5])line(-8,yy,8,yy,'#59683e',0.8);line(0,-9,0,9,'#59683e',0.8);X.restore()}
+// Petoskey stone (Michigan's state stone, a fossil coral): rounded grey stone with six-sided "eyes"
+function petoskeySpr(){return spr('petoskey',30,26,()=>{ell(1,3,12,8,'rgba(0,40,40,0.25)');ell(0,0,12,9,'#9a9488');ell(-2,-2,9,6,'#aaa498');
+  for(let i=0;i<7;i++){const a=i*1.1,r=i?6:0,x=Math.cos(a)*r*1.2,y=Math.sin(a)*r*0.75;X.beginPath();for(let k=0;k<6;k++){const q=k/6*TAU;X[k?'lineTo':'moveTo'](x+Math.cos(q)*3,y+Math.sin(q)*2.4)}X.closePath();X.strokeStyle='#6a6458';X.lineWidth=0.8;X.stroke();circ(x,y,0.9,'#5a5448')}
+  ell(-5,-4,3,1.4,'rgba(255,255,255,0.55)',-0.4)})}
+function drawPetoskey(x,y,t){const g=0.5+0.5*Math.sin(t*4+x);dspr(petoskeySpr(),x,y+Math.sin(t*2.5+x)*1.5,1);circ(x+6,y-5,1.4,'rgba(255,255,255,'+g+')')}
+// great blue heron (side view, standing in the shallows)
+function heronSpr(f){return spr('heron'+f,40,56,()=>{X.scale(f,1);ell(0,22,9,3,'rgba(0,40,60,0.25)');line(-2,8,-3,22,'#6a5a3a',1.2);line(2,8,3,22,'#6a5a3a',1.2);
+  ell(0,4,9,6,'#7d93ad',-0.3);ell(-5,6,6,3,'#5f7590',-0.2);X.beginPath();X.moveTo(5,1);X.quadraticCurveTo(12,-6,6,-12);X.quadraticCurveTo(2,-17,7,-20);X.strokeStyle='#8fa3bb';X.lineWidth=3;X.stroke();
+  circ(7.5,-20.5,2.8,'#e8ecef');line(6,-21.5,10,-23,'#1d1d1d',1);X.beginPath();X.moveTo(9.5,-21);X.lineTo(17,-19.6);X.lineTo(9.5,-19.4);X.closePath();X.fillStyle='#f2b51c';X.fill();circ(8.5,-21,0.7,'#111')})}
+// sandhill crane (grey, red forehead)
+function craneSpr(f){return spr('crane'+f,40,56,()=>{X.scale(f,1);ell(0,23,8,2.6,'rgba(0,0,0,0.2)');line(-2,8,-3,23,'#333',1.2);line(2,8,2,23,'#333',1.2);
+  ell(0,4,9,6.5,'#9a958c',-0.2);ell(-7,6,5,4,'#7f7a70',0.3);X.beginPath();X.moveTo(5,0);X.quadraticCurveTo(9,-10,7,-19);X.strokeStyle='#a9a49a';X.lineWidth=2.6;X.stroke();
+  circ(7.2,-20,2.6,'#d9d6cf');ell(7.4,-21.6,1.8,1.1,'#d62f2f');X.beginPath();X.moveTo(9,-20.5);X.lineTo(15,-19.5);X.lineTo(9,-19);X.closePath();X.fillStyle='#444';X.fill();circ(8,-20.4,0.6,'#111')})}
+// white-tailed deer on the bank
+function deerSpr(f){return spr('deer'+f,56,52,()=>{X.scale(f,1);ell(0,20,16,3,'rgba(0,0,0,0.2)');for(const lx of [-10,-6,7,11])line(lx,4,lx,19,'#7a5232',2);
+  ell(0,2,15,7,'#a8713f');ell(-14,-1,3,3.6,'#fff');ell(-15,-2,2,2.2,'#a8713f');X.beginPath();X.moveTo(10,0);X.lineTo(15,-12);X.lineTo(19,-11);X.lineTo(15,2);X.closePath();X.fillStyle='#a8713f';X.fill();
+  ell(18,-13,5,3.4,'#a8713f',0.3);ell(22,-12,2,1.6,'#3a2a1a');ell(15,-17,1.6,3.4,'#8a5a32',-0.4);ell(19,-18,1.6,3.4,'#8a5a32',0.3);circ(18.5,-14,0.9,'#111');ell(12,2,3,4,'#f2e6d6')})}
+// Up North-style log cabin (roof view, like the houses) with a stone chimney
+function cabinSpr(v){return spr('cabin'+v,92,80,()=>{X.fillStyle='rgba(0,0,0,0.25)';X.fillRect(-36,-24,78,56);const c=['#7a4a26','#6a4020','#845432'][v%3];X.fillStyle=c;X.fillRect(-40,-28,80,54);
+  X.fillStyle=shade(c,0.18);X.fillRect(-40,-28,80,27);for(let i=0;i<6;i++)line(-40,-28+i*9,40,-28+i*9,shade(c,-0.3),1);line(-40,-1,40,-1,shade(c,-0.45),2);
+  X.fillStyle='#8a8580';X.fillRect(18,-24,12,12);X.fillStyle='#6a655f';X.fillRect(18,-24,12,3);X.fillStyle='#b98a52';X.fillRect(-30,26,60,8);for(let i=0;i<6;i++)line(-30+i*12,26,-30+i*12,34,'#8a6234',1)})}
+// mitten sign: "You are here" on the Lower Peninsula (Milford is in the southeast, near the base of the palm)
+function mittenSpr(){return spr('mitten',96,96,()=>{line(-20,34,-20,10,'#6a4a2a',4);line(20,34,20,10,'#6a4a2a',4);rrect(-40,-38,80,56,8);X.fillStyle='#2f6fa3';X.fill();X.strokeStyle='#f2e6c9';X.lineWidth=2.5;X.stroke();
+  X.beginPath();X.moveTo(-14,10);X.quadraticCurveTo(-24,-6,-16,-22);X.quadraticCurveTo(-8,-34,4,-30);X.quadraticCurveTo(12,-26,10,-16);X.quadraticCurveTo(14,-20,19,-15);X.quadraticCurveTo(22,-8,14,-2);X.quadraticCurveTo(12,8,4,12);X.closePath();X.fillStyle='#fff';X.fill();
+  circ(6,4,2.6,'#e53935');txt('YOU ARE HERE',0,14,6.4,'#ffe14d',{sw:0})})}
+// cider jug + donuts (Michigan cider mill tradition) for the finish
+function drawCider(x,y,s){X.save();X.translate(x,y);X.scale(s,s);ell(2,24,18,4,'rgba(0,0,0,0.2)');rrect(-11,-8,22,32,7);X.fillStyle='#c46a1e';X.fill();rrect(-11,-8,22,32,7);X.strokeStyle='rgba(255,255,255,0.5)';X.lineWidth=1.2;X.stroke();
+  rrect(-5,-18,10,11,3);X.fillStyle='#e8d9b5';X.fill();X.beginPath();X.arc(11,4,6,-1.2,1.2);X.strokeStyle='#c46a1e';X.lineWidth=3;X.stroke();rrect(-8,2,16,10,3);X.fillStyle='#fff3d6';X.fill();txt('CIDER',0,7,4.6,'#7a3a10',{sw:0});X.restore()}
+function drawDonut(x,y,s,sp){X.save();X.translate(x,y);X.scale(s,s);ell(1,3,11,5,'rgba(0,0,0,0.2)');ell(0,0,11,8,'#c98a4a');ell(0,-1,9.5,6.5,'#e2b07a');ell(0,-1,3.5,2.4,'#6a4420');
+  if(sp)for(let i=0;i<8;i++){const a=i/8*TAU;ell(Math.cos(a)*6.5,-1+Math.sin(a)*4.4,0.9,0.5,'#f7f1e3',a)}X.restore()}
+// wooden welcome sign
+function signSpr(t1,t2){return spr('sign'+t1+t2,140,70,()=>{line(-38,30,-38,8,'#6a4a2a',4);line(38,30,38,8,'#6a4a2a',4);rrect(-62,-28,124,40,8);X.fillStyle='#2e6b3f';X.fill();X.strokeStyle='#f2e6c9';X.lineWidth=2.5;X.stroke();
+  txt(t1,0,-15,10,'#fff',{sw:0});txt(t2,0,1,13,'#ffe14d',{sw:0})})}

@@ -14,10 +14,10 @@ function muteIcon(cx,cy,r){X.fillStyle='#fff';X.beginPath();X.moveTo(cx-r*0.5,cy
   if(AUD.muted){line(cx+r*0.3,cy-r*0.25,cx+r*0.6,cy+r*0.25,'#ff5252',2.5);line(cx+r*0.6,cy-r*0.25,cx+r*0.3,cy+r*0.25,'#ff5252',2.5)}else{X.beginPath();X.arc(cx+r*0.15,cy,r*0.45,-0.8,0.8);X.strokeStyle='#fff';X.lineWidth=2;X.stroke()}}
 // ---------- HUD ----------
 function drawHUD(){HUDB=[];const l=10+insL(),r=VW-10-insR();
-  rrect(l,8,152,58,14);X.fillStyle='rgba(10,40,55,0.5)';X.fill();
+  rrect(l,8,196,58,14);X.fillStyle='rgba(10,40,55,0.5)';X.fill();
   for(let i=0;i<MAXH;i++)heart(l+18+i*24,24,13,i<hearts?'#ff4d6d':'rgba(255,255,255,0.25)');
   drawBear(l+92,23,0,T*4,0.8);txt(bearsLv+'/'+L.bearsTotal,l+118,24,13,'#ffcc80',{sw:3});
-  drawAcorn(l+16,48,T);txt(''+acorns,l+30,48,11,'#ffe14d',{a:'left',sw:3});
+  drawAcorn(l+16,48,T);txt(''+acorns,l+30,48,11,'#ffe14d',{a:'left',sw:3});dspr(petoskeySpr(),l+160,24,0.85);txt(''+stones,l+174,24,12,'#e0e0e0',{a:'left',sw:3});
   txt('POWER',l+74,48,8,'rgba(255,255,255,0.7)',{sw:0});for(let i=0;i<6;i++)circ(l+92+i*10,48,3.6,i<boat.rhythm?(i<3?'#7cff6b':i<5?'#ffd23f':'#ff6a1f'):'rgba(255,255,255,0.22)');
   const px=r-18;circ(px,26,17,'rgba(10,40,55,0.55)');X.strokeStyle='#fff';X.lineWidth=2;X.stroke();X.fillStyle='#fff';X.fillRect(px-6,18,4,16);X.fillRect(px+2,18,4,16);HUDB.push({id:'pause',x:px-26,y:0,w:52,h:52});
   rrect(px-104,12,76,28,14);X.fillStyle='rgba(10,40,55,0.5)';X.fill();txt(fmtT(lvTime),px-66,26,13,'#fff',{sw:0});
@@ -77,7 +77,7 @@ function drawRecords(){dim(0.55);UI=[];const w=Math.min(560,VW-30),x=panel(w,VH-
   board.slice(0,5).forEach((e,i)=>{const yy=98+i*22;txt((i+1)+'.',x+w*0.53,yy,11,'#c0392b',{a:'left',sw:0});txt(e.score+' pts',x+w*0.58,yy,11,'#1d3b4a',{a:'left',sw:0});txt(fmtT(e.time),x+w*0.8,yy,10,'#1e6aa5',{sw:0});drawBear(x+w*0.9,yy,0,0,0.55);txt(''+e.bears,x+w*0.95,yy,10,'#b5521c',{sw:0})});
   txt('Lifetime woolly bears saved: '+lifeBears+'   \u2022   Rubber ducks: '+ducksFound.length+'/5',VW/2,226,12,'#1d3b4a',{sw:0});
   bigBtn('back','BACK',VW/2,VH-56,150,44,'#7cff6b','#2fa84a')}
-const TIPS=['Tap LEFT and RIGHT in turn to go fast! Hold one to steer that way.','Twisty river! Lean into the turns, and wave to the turtles.','Burping fish push you around. Scoop woolly bears off the leaves!','Beaver dams: find the gap! Watch out for geese.','Fast water! Dodge the rocks, then cheer up a grumpy turtle.'];
+const TIPS=['Tap LEFT and RIGHT in turn to go fast! Hold one to steer that way.','Burping fish push you around. Can you spot a great blue heron?','Beaver dams: find the gap! Watch out for Canada geese.','Everyone ducks under the low bridges. Headlamp on in the tunnel!','Fast water! Dodge the rocks, then cheer up Old Mossback.'];
 function drawCard(){const t=card.t;dim(Math.min(0.45,t));const w=Math.min(470,VW-30),y=VH/2-104;X.save();X.translate(VW/2,y+104);const s=easeB(Math.min(1,t*2.5));X.scale(s,s);X.translate(-VW/2,-y-104);
   const x=panel(w,208,y);txt('LEVEL '+(lvI+1),VW/2,y+30,16,'#e8762b',{sw:0});txt(L.D.name,VW/2,y+64,30,'#fff',{st:'#1e6aa5',sw:7});txt(L.D.sub,VW/2,y+96,13,'#1d3b4a',{sw:0});
   const tip=TIPS[lvI],words=tip.split(' ');let l1='',l2='';for(const wd of words){if((l1+' '+wd).length<46&&!l2)l1+=(l1?' ':'')+wd;else l2+=(l2?' ':'')+wd}txt(l1,VW/2,y+124,11.5,'#5a4a3a',{sw:0});txt(l2,VW/2,y+142,11.5,'#5a4a3a',{sw:0});
@@ -92,15 +92,16 @@ function drawClear(){const t=stT,ci=clearInfo;dim(Math.min(0.4,t*0.5));UI=[];con
   const n=L.bearsTotal,bx0=VW/2-(n-1)*13;for(let i=0;i<n;i++){const ok=i<bearsLv;X.globalAlpha=ok?1:0.25;drawBear(bx0+i*26,y+104,0,T*6+i,ok?1:0.9);X.globalAlpha=1}
   txt('Woolly Bear Hero: '+bearsLv+' / '+n,VW/2,y+128,15,'#b5521c',{sw:0});
   txt('Time '+fmtT(lvTime)+(ci.newBest?'  NEW BEST!':''),VW/2,y+152,13,ci.newBest?'#e53935':'#1d3b4a',{sw:0});
-  txt('Acorns '+acorns+'   \u2022   Waves '+lvStats.waves+'   \u2022   Dad dunks '+lvStats.dunks+(lvStats.duck?'   \u2022   \uD83E\uDD86 found!':''),VW/2,y+174,11,'#5a4a3a',{sw:0});
+  txt('Acorns '+acorns+'   \u2022   Petoskey stones '+stones+'   \u2022   Waves '+lvStats.waves+'   \u2022   Dad dunks '+lvStats.dunks+(lvStats.duck?'   \u2022   \uD83E\uDD86 found!':''),VW/2,y+174,11,'#5a4a3a',{sw:0});
   txt('Score '+score+'  (+'+(hearts*100)+' hearts bonus)',VW/2,y+196,12,'#1e6aa5',{sw:0});
   if(ci.unlock)txt('NEW CANOE: '+ci.unlock+'!',VW/2,y+218,13,'#e8762b',{sw:0});
   if(t>1.5)txt('TAP FOR NEXT LEVEL!',VW/2,y+240+Math.sin(T*6)*2,14,'#2fa84a',{sw:0});X.restore()}
 function drawEnd(){const t=stT,e=endStats;dim(0.35);UI=[];const w=Math.min(600,VW-24),h=Math.min(VH-24,380),y=(VH-h)/2;const x=panel(w,h,y,'#fff1c9');
-  txt('WOOLLY BEAR HERO!',VW/2,y+34,Math.min(32,w/15),'#ffcc80',{st:'#7a2e0e',sw:7});
-  const n=Math.min(e.bears,Math.floor((w-40)/22));const march=(T*30)%22;for(let i=0;i<n;i++){const bx=x+24+((i*22+march)%(w-48));drawBear(bx,y+68,0,T*8+i,0.95)}
+  txt('WOOLLY BEAR HERO!',VW/2,y+34,Math.min(32,w/15),'#ffcc80',{st:'#7a2e0e',sw:7});if(w>440){drawCider(x+34,y+40,1.1);drawDonut(x+w-52,y+44,1.2,1);drawDonut(x+w-30,y+34,1.05,0)}
+  txt('Welcome to Milford! Cider & donuts at Central Park!',VW/2,y+56,11,'#7a3a10',{sw:0});
+  const n=Math.min(e.bears,Math.floor((w-40)/22));const march=(T*30)%22;for(let i=0;i<n;i++){const bx=x+24+((i*22+march)%(w-48));drawBear(bx,y+75,0,T*8+i,0.95)}
   txt('You saved '+e.bears+' of '+e.bearsTotal+' woolly bears, Alex!',VW/2,y+96,15,'#b5521c',{sw:0});
-  txt('Time '+fmtT(e.time)+'   \u2022   Score '+e.score+'   \u2022   Acorns '+e.acorns,VW/2,y+120,12,'#1d3b4a',{sw:0});
+  txt('Time '+fmtT(e.time)+'   \u2022   Score '+e.score+'   \u2022   Acorns '+e.acorns+'   \u2022   Petoskey stones '+(e.stones||0),VW/2,y+120,12,'#1d3b4a',{sw:0});
   txt('Dad went swimming '+e.dunks+' times! \uD83D\uDCA6   \u2022   Rubber ducks '+e.ducks+'   \u2022   Bonks '+e.bonks,VW/2,y+140,11,'#1e6aa5',{sw:0});
   if(e.unlocks.length)txt('Unlocked: '+e.unlocks.join(', ')+'!',VW/2,y+160,12,'#e8762b',{sw:0});
   txt(e.full?'LEADERBOARD':'Practice run (start at level 1 for the leaderboard)',VW/2,y+182,12,'#c0392b',{sw:0});
@@ -116,7 +117,7 @@ function nextLevel(){if(lvI<LEVELS.length-1)startLevel(lvI+1);else finish()}
 function finish(){if(state==='end')return;LS.set('beat',1);const nb=!bestT[lvI]||lvTime<bestT[lvI];if(nb){bestT[lvI]=lvTime;LS.set('best',bestT)}
   run.score+=score+hearts*100;run.time+=lvTime;run.bearsTotal+=L.bearsTotal;run.levels++;checkUnlocks();
   let rank=-1;if(runFull){const ent={score:run.score,time:run.time,bears:run.bears,d:Date.now()};board.push(ent);board.sort((a,b)=>b.score-a.score||a.time-b.time);board=board.slice(0,5);rank=board.indexOf(ent);LS.set('board',board)}
-  endStats={bears:run.bears,bearsTotal:run.bearsTotal,time:run.time,score:run.score,acorns:run.acorns,dunks:run.dunks,ducks:run.ducks,bonks:run.bonks,unlocks:newUnlocks.slice(),full:runFull,rank};newUnlocks=[];
+  endStats={bears:run.bears,bearsTotal:run.bearsTotal,time:run.time,score:run.score,acorns:run.acorns,stones:run.stones,dunks:run.dunks,ducks:run.ducks,bonks:run.bonks,unlocks:newUnlocks.slice(),full:runFull,rank};newUnlocks=[];
   state='end';stT=0;clearInput();AUD.setTheme('win');AUD.SFX.fanfare();setTimeout(()=>AUD.SFX.cheer(),600);say('did',3);fwT=0}
 function toTitle(){clearInput();state='title';stT=0;paused=false;boss=null;demo=null;AUD.setTheme('title');parts=[];floats=[];banner=null;smear=[]}
 function setSteer(){steerMode=steerMode==='canoe'?'arrow':'canoe';LS.set('steer2',steerMode);AUD.SFX.click()}
@@ -182,6 +183,7 @@ function update(dt){T+=dt;stT+=dt;shake=Math.max(0,shake-dt*1.5);
   else if(state==='oops'){camUpdate(dt);if(stT>2.3)respawn()}
   else if(state==='clear'){boat.s=approach(boat.s,30,dt*60);boat.y-=(boat.s+L.cur*0.3)*dt;boat.cheer=1;stepDad(dt);camUpdate(dt);boat.ph=Math.min(1,boat.ph+dt/0.45);if(stT>7)nextLevel()}
   else if(state==='bosswin'){lvTime+=dt;stepBoss(dt);stepDad(dt);boat.cheer=1;boat.s=approach(boat.s,0,dt*80);boat.vx*=0.95;if(stT>3){boat.y-=50*dt;boss.y-=50*dt;boss.hy-=50*dt}
+    if(stT>2.6&&!saidOnce.milford){saidOnce.milford=1;showBanner('WELCOME TO MILFORD!','#ffe14d',3.5);say('milford',3)}
     camUpdate(dt);fwT-=dt;if(fwT<=0&&stT>0.6){fwT=0.5;firework(boss.x+rr(-90,90),boss.y-rr(40,120));confetti(10,boss.x,boss.y-80)}if(stT>8.5)finish()}}
 // self-check (debug): paddle buttons must never cover Alex, Dad, or hazards ahead of the canoe
 function coverCheck(){if(portrait)return;const rs=ctlRects();const ov=(x,y,r)=>rs.some(b=>x+r>b.x&&x-r<b.x+b.w&&y+r>b.y&&y-r<b.y+b.h);cov.n++;const by=boat.y-camY,bx=boat.x-camX;
@@ -217,7 +219,7 @@ AUD.setTheme('title');requestAnimationFrame(frame);
 if(DEBUG)window.__A={get state(){return state},set state(v){state=v},get boat(){return boat},get dad(){return dad},get L(){return L},get hearts(){return hearts},set hearts(v){hearts=v},get score(){return score},get bearsLv(){return bearsLv},get carry(){return carry.length},
   get boss(){return boss},get lv(){return lvI},get run(){return run},get paused(){return paused},get stT(){return stT},set stT(v){stT=v},get card(){return card},get endStats(){return endStats},get clearInfo(){return clearInfo},get inv(){return inv},set inv(v){inv=v},
   get inp(){return {l:inp.l,r:inp.r}},get nptrs(){return ptrs.size},get pressQ(){return pressQ.length},get cov(){return cov},get fps(){return fps},get work(){return work},get workMax(){return workMax},resetPerf(){workMax=0},get ema(){return ema},get dprCap(){return dprCap},get DPR(){return DPR},get smear(){return smear.length},get geese(){return geese.length},get flowerCarry(){return flowerCarry},
-  get canoes(){return canoesOwned},get canoeSel(){return canoeSel},get steer(){return steerMode},steerSet(v){steerMode=v},get board(){return board},get bestT(){return bestT},get unlockLv(){return unlockLv},set unlockLv(v){unlockLv=v},get ducks(){return ducksFound},get lvTime(){return lvTime},get AP(){return AP.mode},
+  get canoes(){return canoesOwned},get canoeSel(){return canoeSel},get steer(){return steerMode},get cam(){return {x:camX,y:camY}},steerSet(v){steerMode=v},get board(){return board},get bestT(){return bestT},get unlockLv(){return unlockLv},set unlockLv(v){unlockLv=v},get ducks(){return ducksFound},get lvTime(){return lvTime},get AP(){return AP.mode},
   audio:AUD,newRun,startPlay,startLevel,finish,set TS(v){TS=v},get TS(){return TS},bot(on){bot.on=on;bot.l=bot.r=0;syncInp()},
   tele(y,x){boat.y=y;boat.x=x==null?riverC(y):x;boat.vx=0;boat.s=0;camUpdate(0,true)},spawnGoose(){spawnGoose(false)},dunk(k){dad.st='wind';dad.k=k;dad.t=0;dad.side=R()<0.5?-1:1;if(k==='sneeze'){say('dadsneeze',3);setTimeout(()=>AUD.SFX.sneeze(),700)}},
   toClient:(x,y)=>({x:x*SC+OX,y:y*SC+OY}),ctl,ctlRects,get VW(){return VW},get VH(){return VH},get portrait(){return portrait},get ui(){return UI.map(b=>({id:b.id,x:b.x+b.w/2,y:b.y+b.h/2}))},get hud(){return HUDB.map(b=>({id:b.id,x:b.x+b.w/2,y:b.y+b.h/2}))},
