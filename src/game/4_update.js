@@ -1,19 +1,20 @@
 // ================= gameplay: paddling physics, hazards, rescues, Dad's dunks, boss =================
 let state='title',T=0,stT=0,TS=1,lvI=0,paused=false,camX=0,camY=0,anchor=250,shake=0,parts=[],floats=[],banner=null,card=null;
-let hearts=3,score=0,acorns=0,stones=0,bearsLv=0,lvTime=0,runTime=0,runFull=false,run=null,boat=null,dad=null,carry=[],checkpoint=null,inv=0,geese=[],poops=[],smear=[],boss=null,flowers=[],flowerCarry=0;
+let tut=null,hearts=3,score=0,acorns=0,stones=0,bearsLv=0,lvTime=0,runTime=0,runFull=false,run=null,boat=null,dad=null,carry=[],checkpoint=null,inv=0,geese=[],poops=[],smear=[],boss=null,flowers=[],flowerCarry=0;
 let lvStats=null,endStats=null,clearInfo=null,oopsN=0,saidOnce={},cov={n:0,viol:0,ex:[]},hintT=0;
 const MAXH=3,STROKE_REP=0.42,BOW=-38;
 function newRun(i){runFull=i===0;run={score:0,bears:0,bearsTotal:0,acorns:0,stones:0,ducks:0,dunks:0,time:0,bonks:0,waves:0,levels:0};startLevel(i)}
-function startLevel(i){lvI=i;buildLevel(i);const y0=-40;
+function startLevel(i){lvI=i;buildLevel(i);L.stonesTotal=L.obj.filter(o=>o.t==='acorn'&&o.pk).length;const y0=-40;
   boat={x:riverC(y0),y:y0,vx:0,s:0,ang:0,side:-1,ph:1,dph:1,rhythm:0,lastStroke:-9,repT:0,brake:0,duck:0,spin:0,wave:0,cheer:0,turn:0,maxRhythm:0};
   dad={st:'boat',k:'',t:0,x:0,y:0,vx:0,vy:0,soggy:0,hat:1,lean:0,sneeze:0,reach:0,side:1,h:0};
   hearts=MAXH;score=0;acorns=0;stones=0;bearsLv=0;lvTime=0;carry=[];checkpoint={y:y0,x:boat.x};inv=0;geese=[];poops=[];smear=[];boss=null;flowers=[];flowerCarry=0;parts=[];floats=[];banner=null;saidOnce={};oopsN=0;
   lvStats={dunks:0,bonks:0,waves:0,duck:0};camY=boat.y-anchor;camX=boat.x-VW/2;
-  state='card';stT=0;paused=false;card={t:0};clearInput();AUD.setTheme(L.D.music);setTimeout(()=>say('l'+(i+1),3),350);hintT=0}
-function startPlay(){if(state!=='card')return;state='play';stT=0;card=null;clearInput();say(lvI===4?'rapids':pick(['go','go2']),2);if(lvI===0)setTimeout(()=>{if(state==='play'&&lvI===0)say('michigan',1)},4200)}
+  state='card';stT=0;paused=false;card={t:0};clearInput();AUD.setTheme(L.D.music);setTimeout(()=>say('l'+(i+1),3),350);hintT=0;tut=i===0?{s:0,t:0,h:0}:null}
+function startPlay(){if(state!=='card')return;state='play';stT=0;card=null;clearInput();if(tut)say('tut1',3);else say(lvI===4?'rapids':pick(['go','go2']),2)}
 // ---------- particles / floating text ----------
 function splash(x,y,n,sp,col){for(let i=0;i<n;i++){const a=rr(0,TAU),s=rr(0.3,1)*sp;parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:0,max:rr(0.35,0.8),sz:rr(1.5,3.5),col:col||'rgba(235,250,255,0.9)',k:'drop',g:0})}}
 function ring(x,y,r0,r1,dur,col){parts.push({x,y,r0,r1,life:0,max:dur,k:'ring',col:col||'255,255,255'})}
+function pop(x,y,col,n){ring(x,y,4,26,0.35,col||'255,240,160');for(let i=0;i<(n||8);i++){const a=i/(n||8)*TAU+R()*0.3,s=rr(60,110);parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:0,max:rr(0.3,0.5),sz:2.2,col:'rgba('+(col||'255,240,160')+',1)',k:'spark',g:0})}}
 function floatTxt(s,x,y,col,sz){floats.push({s,x,y,col:col||'#fff',sz:sz||16,t:0})}
 function showBanner(s,col,dur){banner={s,col:col||'#fff',t:0,dur:dur||2}}
 function confetti(n,x,y){for(let i=0;i<n;i++)parts.push({x:x==null?camX+rr(0,VW):x,y:y==null?camY-10:y,vx:rr(-60,60),vy:rr(20,120),life:0,max:rr(2,3.5),sz:rr(3,5),col:pick(['#ff4d6d','#ffd23f','#52d66a','#4fc3f7','#b388ff','#ff8a3d']),k:'conf',rot:rr(0,6),vr:rr(-8,8),g:40})}
@@ -36,6 +37,7 @@ function stepBoat(dt){const both=inp.l&&inp.r;
   if(T-boat.lastStroke>1.1&&boat.rhythm>0){boat.rhythm--;boat.lastStroke=T-0.6}
   boat.s-=boat.s*0.42*dt;boat.vx*=Math.exp(-1.9*dt);boat.vx=clamp(boat.vx,-160,160);
   boat.ph=Math.min(1,boat.ph+dt/0.45);boat.dph=Math.min(1,boat.dph+dt/0.45);
+  if(boat.s>70&&parts.length<380&&R()<dt*boat.s*0.09){const c=Math.cos(boat.ang),sn=Math.sin(boat.ang),sd=R()<0.5?-1:1;parts.push({x:boat.x-sn*-40+sd*10*c,y:boat.y+40*c+sd*10*sn,vx:sd*rr(14,26)*c,vy:rr(10,24),life:0,max:rr(0.5,0.9),sz:rr(1.6,2.6),col:'rgba(235,250,255,0.75)',k:'drop',g:0})}
   const cur=curNow(boat.y);
   boat.y-=(boat.s+cur)*dt;boat.x+=boat.vx*dt;
   // banks (soft bounce, no damage)
@@ -53,7 +55,7 @@ function hitTest(o,cs){// returns {nx,ny} push normal or null
   else if(o.t==='log'){const ca=Math.cos(o.ang)*o.len/2,sa=Math.sin(o.ang)*o.len/2;for(const c of cs){const s=segDist(c.x,c.y,o.x-ca,o.y-sa,o.x+ca,o.y+sa);if(s.d<c.r+o.r)return{nx:(c.x-s.qx)/(s.d||1),ny:(c.y-s.qy)/(s.d||1),pen:c.r+o.r-s.d}}}
   else if(o.t==='dam'){for(const c of cs){if(Math.abs(c.y-o.y)<o.h/2+c.r&&Math.abs(c.x-o.gx)>o.gw/2-c.r*0.6){const nx=0,ny=c.y>o.y?1:-1;return{nx,ny,pen:o.h/2+c.r-Math.abs(c.y-o.y)}}}}
   return null}
-const bonkLog=[];function bonk(nx,ny,why){if(inv>0)return;bonkLog.push(why+'@'+Math.round(-boat.y)+'/lv'+lvI);hearts--;inv=1.7;lvStats.bonks++;run.bonks++;boat.s=-40;boat.vx+=nx*110;boat.spin=0.5;shake=0.35;AUD.SFX.bonk();
+const bonkLog=[];function bonk(nx,ny,why){if(inv>0)return;bonkLog.push(why+'@'+Math.round(-boat.y)+'/lv'+lvI);hearts--;inv=1.7;lvStats.bonks++;run.bonks++;if(lvStats.bonks===1&&lvStats.bonkFree!==0){lvStats.bonkFree=0;floatTxt('No-bonk star lost',boat.x,boat.y+50,'#ffb3b3',11)}boat.s=-40;boat.vx+=nx*110;boat.spin=0.5;shake=0.35;AUD.SFX.bonk();
   const b=bowPos();floatTxt(pick(['BONK!','BOINK!','BONK!','OOF!']),b.x,b.y-20,'#ffe14d',22);splash(b.x,b.y,10,90);
   if(hearts<=0){state='oops';stT=0;oopsN++;AUD.SFX.hurt();say('oops',3);clearInput()}else say(pick(['bonk','bonk2']),2,6)}
 function collide(){const cs=canoeCircles();
@@ -62,9 +64,9 @@ function collide(){const cs=canoeCircles();
 function stepObjects(dt){const cs=canoeCircles(),bw=bowPos();
   for(const o of L.obj){if(o.y>boat.y+500||o.y<boat.y-700)continue;
     if(o.t==='log'){o.x=o.x0+Math.sin(T*0.35+o.ph)*o.vx*2.2;o.ang+=Math.sin(T*0.2+o.ph)*0.02*dt}
-    else if(o.t==='acorn'&&!o.got){for(const c of cs)if(dist2(c.x,c.y,o.x,o.y)<(c.r+12)**2){o.got=1;if(o.pk){stones++;run.stones++;score+=25;AUD.SFX.acorn();setTimeout(()=>AUD.SFX.acorn(),90);floatTxt('Petoskey stone! +25',o.x,o.y-12,'#e0e0e0',13);if(!saidOnce.stone){saidOnce.stone=1;say('stone',1)}}else{acorns++;run.acorns++;score+=10;AUD.SFX.acorn();floatTxt('+10',o.x,o.y-10,'#ffe14d',13)}break}}
+    else if(o.t==='acorn'&&!o.got){for(const c of cs)if(dist2(c.x,c.y,o.x,o.y)<(c.r+12)**2){o.got=1;if(o.pk){stones++;run.stones++;score+=25;AUD.SFX.acorn();setTimeout(()=>AUD.SFX.acorn(),90);floatTxt('Petoskey stone! +25',o.x,o.y-12,'#e0e0e0',14);pop(o.x,o.y,'230,230,240',10);if(!saidOnce.stone){saidOnce.stone=1;say('stone',1)}}else{acorns++;run.acorns++;score+=10;AUD.SFX.acorn();floatTxt('+10',o.x,o.y-10,'#ffe14d',14);pop(o.x,o.y,'255,225,77',6)}break}}
     else if(o.t==='friend'&&!o.waved){if(Math.abs(o.y-boat.y)<50&&Math.abs(o.x-boat.x)<130){o.waved=T;boat.wave=1.1;score+=25;lvStats.waves++;run.waves++;AUD.SFX.wave();floatTxt('Hi! +25',o.x,o.y-16,'#b2ff59',13);say(o.k,1,9)}}
-    else if(o.t==='bear'){if(o.st==='float'){o.ph+=dt;if(dist2(bw.x,bw.y,o.x,o.y)<38*38||dist2(boat.x,boat.y,o.x,o.y)<30*30){o.st='carry';carry.push(o);AUD.SFX.scoop();floatTxt('Scooped!',o.x,o.y-14,'#ffcc80',14);
+    else if(o.t==='bear'){if(o.st==='float'){o.ph+=dt;if(dist2(bw.x,bw.y,o.x,o.y)<38*38||dist2(boat.x,boat.y,o.x,o.y)<30*30){o.st='carry';carry.push(o);AUD.SFX.scoop();floatTxt('Scooped!',o.x,o.y-14,'#ffcc80',16);pop(o.x,o.y,'255,180,100',10);
         if(!saidOnce.scoop){saidOnce.scoop=1;say('scoop',2)}else if(!saidOnce.shore&&carry.length>=2){saidOnce.shore=1;say('shore',1)}}}
       else if(o.st==='drop'){o.dt+=dt;const k=ease(o.dt/1.1);o.x=lerp(o.sx,o.tx,k);o.y=lerp(o.sy,o.ty,k)-Math.sin(k*Math.PI)*12;if(o.dt>1.1)o.st='safe'}}
     else if(o.t==='rduck'&&!o.got){if(dist2(bw.x,bw.y,o.x,o.y)<36*36||dist2(boat.x,boat.y,o.x,o.y)<30*30){o.got=1;score+=500;lvStats.duck=1;run.ducks++;if(!ducksFound.includes(lvI)){ducksFound.push(lvI);LS.set('ducks',ducksFound)}
@@ -83,7 +85,7 @@ function stepObjects(dt){const cs=canoeCircles(),bw=bowPos();
   if(carry.length){const c=riverC(boat.y),hw=riverHW(boat.y),side=boat.x<c?-1:1;if(Math.abs(boat.x-c)>hw-44&&!inTunnel(boat.y))dropBears(side)}}
 function dropBears(side){const c=riverC(boat.y),hw=riverHW(boat.y);carry.forEach((o,i)=>{o.st='drop';o.dt=-i*0.25;o.sx=boat.x;o.sy=boat.y-10;o.tx=c+side*(hw+26+i*14);o.ty=boat.y-14+i*10;o.x=o.sx;o.y=o.sy;o.rot=side>0?0:Math.PI;
   bearsLv++;run.bears++;lifeBears++;score+=100});LS.set('bears',lifeBears);
-  const n=carry.length;carry=[];AUD.SFX.drop();setTimeout(()=>AUD.SFX.cheer(),200);boat.cheer=1.4;floatTxt(n>1?n+' WOOLLY BEARS SAVED!':'WOOLLY BEAR SAVED!',boat.x,boat.y-60,'#ffcc80',18);
+  const n=carry.length;carry=[];AUD.SFX.drop();pop(boat.x,boat.y-10,'255,204,128',14);confetti(10,boat.x,boat.y-60);setTimeout(()=>AUD.SFX.cheer(),200);boat.cheer=1.4;floatTxt(n>1?n+' WOOLLY BEARS SAVED!':'WOOLLY BEAR SAVED!',boat.x,boat.y-60,'#ffcc80',18);
   showBanner('WOOLLY BEAR HERO '+bearsLv+'/'+L.bearsTotal,'#ffcc80',1.8);say(bearsLv===1?'wb':pick(['wb','wb2','wb3']),3)}
 // ---------- geese & goose poop ----------
 function stepGeese(dt){for(const g of L.geese){if(!g.done&&boat.y<g.y+200&&dad.st==='boat'&&!inTunnel(boat.y)){g.done=1;spawnGoose(false)}}
@@ -139,7 +141,15 @@ function stepMarkers(dt){for(const c of L.checks)if(!c.hit&&boat.y<c.y){c.hit=1;
   if(!L.D.boss&&boat.y<L.finishY&&dad.st==='wind'){dad.st='boat';dad.t=0}
   if(!L.D.boss&&boat.y<L.finishY&&dad.st==='boat')levelClear();
   if(L.D.boss&&!boss&&boat.y<L.arena.y0-20)startBoss();
-  hintT+=dt;if(lvI===0&&hintT>7&&boat.maxRhythm<2&&!saidOnce.fast){saidOnce.fast=1;say('fast',1)}}
+  hintT+=dt;if(tut)stepTut(dt)}
+// ---------- first-30-seconds tutorial (level 1): paddle rhythm -> steer -> scoop a woolly bear -> drop it ashore ----------
+function stepTut(dt){const t=tut;t.t+=dt;
+  if(t.s===0){if(t.t>9&&t.t-dt<=9)say('tut1',2);if(boat.maxRhythm>=3){t.s=1;t.t=0;AUD.SFX.check();say('tut2',3)}}
+  else if(t.s===1){if((inp.l^inp.r)&&!bot.on)t.h+=dt;else if(bot.on)t.h+=dt*0.5;if(t.h>0.6||t.t>9){t.s=2;t.t=0;AUD.SFX.check()}}
+  else if(t.s===2){const b=tutBear();if(b&&!t.said&&boat.y-b.y<420){t.said=1;say('tut3',3)}if(carry.length){t.s=3;t.t=0}}
+  else if(t.s===3){if(t.t>0.3&&!t.said3){t.said3=1;say('shore',3)}if(bearsLv>=1){t.s=4;t.t=0;setTimeout(()=>say('tut4',2),2600)}}
+  else if(t.s===4&&t.t>5.5){tut=null;setTimeout(()=>{if(state==='play'&&lvI===0)say('michigan',1)},1500)}}
+function tutBear(){let best=null;for(const o of L.obj)if(o.t==='bear'&&o.st==='float'&&o.y<boat.y+20&&(!best||o.y>best.y))best=o;return best}
 function respawn(){const cp=checkpoint;boat.x=cp.x;boat.y=cp.y;boat.s=0;boat.vx=0;boat.ang=0;boat.rhythm=0;hearts=MAXH;inv=2.5;geese=[];poops=[];smear=[];
   if(dad.st!=='boat'){dad.st='boat';dad.t=0}dad.lean=0;dad.reach=0;dad.sneeze=0;for(const o of L.obj)if(o.t==='fish'){o.st='wait';o.jumps=0}
   if(boss&&boss.st!=='happy'){boss.st='idle';boss.t=0;boss.hx=boss.x;boss.hy=boss.y+70}state='play';stT=0;clearInput()}

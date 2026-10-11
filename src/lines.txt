@@ -48,3 +48,7 @@ milford|Welcome to Milford, Alex! Who wants cider and donuts?|ryan|1.04
 dadswim|Never mind, I'll doggy paddle! Here I come!|ryan|1.04
 stone|A Petoskey stone! That's Michigan's state stone!|amy|1.15
 michigan|Look, Alex! A mitten sign. We're right here in Michigan!|ryan|1.04
+tut1|Tap left, then right, to paddle! Left, right, left, right!|amy|1.15
+tut2|Great paddling! Now hold one button to turn that way!|amy|1.15
+tut3|See the fuzzy woolly bear on the leaf? Paddle over and scoop it up!|amy|1.15
+tut4|Awesome, Alex! Save all the woolly bears and paddle to the finish!|ryan|1.04

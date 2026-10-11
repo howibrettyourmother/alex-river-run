@@ -1,7 +1,7 @@
 // ================= core: canvas, layout, input, prefs =================
 const cv=document.getElementById('c');let X=cv.getContext('2d',{alpha:false});const X0=X;
 const DEBUG=/[?&]debug=1/.test(location.search),ICONMODE=/[?&]icon=1/.test(location.search),OGMODE=/[?&]og=1/.test(location.search);
-const VERSION='1.1.0',FONT='"Arial Rounded MT Bold","Fredoka","Baloo 2","Trebuchet MS",system-ui,sans-serif';
+const VERSION='1.2.0',FONT='"Arial Rounded MT Bold","Fredoka","Baloo 2","Trebuchet MS",system-ui,sans-serif';
 let SW=0,SH=0,DPR=1,SC=1,VW=640,VH=400,OX=0,OY=0,portrait=false,INS={l:0,r:0,t:0,b:0},dprCap=2,CTL=null;
 const insEl=document.createElement('div');insEl.style.cssText='position:fixed;left:0;top:0;width:0;height:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);visibility:hidden;pointer-events:none';document.body.appendChild(insEl);
 function resize(){const vv=window.visualViewport;SW=Math.round(vv&&vv.width||innerWidth);SH=Math.round(vv&&vv.height||innerHeight);if(vv&&vv.scale>1.01){SW=innerWidth;SH=innerHeight}DPR=Math.min(devicePixelRatio||1,dprCap);
@@ -23,7 +23,7 @@ const dist2=(ax,ay,bx,by)=>(ax-bx)*(ax-bx)+(ay-by)*(ay-by);
 // ---------- persistent prefs (all local) ----------
 const LS={get(k,d){try{const v=localStorage.getItem('arr_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('arr_'+k,JSON.stringify(v))}catch(e){}}};
 const CANOES=[{id:'silver',name:'Silver Canoe',need:'Ready to go!'},{id:'rocket',name:'Rocket Canoe',need:'Clear Huron River Marsh'},{id:'pirate',name:'Pirate Canoe',need:'Find 3 rubber ducks'},{id:'hotdog',name:'Hot Dog Canoe',need:'Make the turtle happy'}];
-let unlockLv=LS.get('unlock',1),bestT=LS.get('best',{}),canoesOwned=LS.get('canoes',['silver']),canoeSel=LS.get('canoe','silver'),ducksFound=LS.get('ducks',[]),steerMode=LS.get('steer2','arrow'),board=LS.get('board',[]),lifeBears=LS.get('bears',0);
+let unlockLv=LS.get('unlock',1),bestT=LS.get('best',{}),canoesOwned=LS.get('canoes',['silver']),canoeSel=LS.get('canoe','silver'),ducksFound=LS.get('ducks',[]),steerMode=LS.get('steer2','arrow'),board=LS.get('board',[]),starsBest=LS.get('stars',{}),lifeBears=LS.get('bears',0);
 if(!canoesOwned.includes(canoeSel))canoeSel='silver';
 // ---------- on-screen controls layout (CSS px) ----------
 // Landscape: big round paddle buttons on the river banks (side mode) when the bank is wide enough (iPhone),

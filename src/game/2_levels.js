@@ -3,14 +3,14 @@
 // A real fall trip down the Huron River: Proud Lake Recreation Area -> marshes -> beaver backwater -> the bridges and a stone tunnel ->
 // downtown Milford (Central Park on the Mill Pond). Level 5's fast water is make-believe (the real river here is gentle).
 const LEVELS=[
-  {key:'proud',name:'Proud Lake',sub:'Proud Lake Recreation Area, Michigan',music:'willow',len:7200,cur:32,hw:170,amp:105,wl:2500,seed:23,
+  {key:'proud',name:'Proud Lake',sub:'Proud Lake Recreation Area, Michigan',music:'willow',len:6600,cur:28,hw:182,amp:70,wl:2700,seed:23,
    water:'#3f7a6a',water2:'#6aa58c',bank:'#6f9a48',edge:'#7a6040',style:'willow',
    tunnels:[],bridges:[0.62],dams:[],dad:[[0.22,'hat'],[0.5,'turn'],[0.8,'sneeze']],
-   w:{rocks:2,log:3,fish:1,burp:0,cattail:0,wave:0},geese:[0.36,0.82],bears:6,step:[118,180],gap:118},
+   w:{rocks:2,log:2,fish:1,burp:0,cattail:0,wave:0},geese:[0.6],bears:6,step:[150,215],gap:136},
   {key:'marsh',name:'Huron River Marsh',sub:'Cattails & tree-lined banks below Proud Lake',music:'marsh',len:7600,cur:30,hw:190,amp:80,wl:2800,seed:37,
    water:'#4a6f5c',water2:'#7b9b6f',bank:'#9a8f4a',edge:'#6d5a32',style:'marsh',
    tunnels:[],bridges:[0.45],dams:[],dad:[[0.22,'frog'],[0.52,'sneeze'],[0.8,'frog']],
-   w:{rocks:1,log:2,fish:2,burp:3,cattail:3,wave:0},geese:[0.33,0.66,0.9],bears:8,step:[112,168],gap:112},
+   w:{rocks:1,log:2,fish:2,burp:3,cattail:3,wave:0},geese:[0.33,0.66,0.9],bears:8,step:[124,180],gap:122},
   {key:'pond',name:'Beaver Backwater',sub:'Busy Michigan beavers! Find the gaps',music:'pond',len:8000,cur:22,hw:200,amp:60,wl:3000,seed:41,
    water:'#356f86',water2:'#5d98ad',bank:'#5f8a44',edge:'#6b5232',style:'pond',
    tunnels:[],bridges:[],dams:[0.16,0.36,0.5,0.78,0.92],dad:[[0.24,'hat'],[0.44,'turn'],[0.7,'sneeze']],
@@ -101,7 +101,7 @@ function buildLevel(i){const D=LEVELS[i];seed=D.seed*7919+13;const len=D.len,end
   {const S=D.style,c0=riverC(-150),h0=riverHW(-150);const mx=c0-h0-48;L.deco=L.deco.filter(d=>dist2(d.x,d.y,mx,-150)>95*95);L.deco.push({k:'mitten',x:mx,y:-150,s:1,v:0,side:-1});
     const put=(k,n,off0,off1,f0,f1)=>{for(let i=0;i<n;i++){const yy=-len*srr(f0+(f1-f0)*i/n,f0+(f1-f0)*(i+0.8)/n);if(inTunnel(yy))continue;const side=srand()<0.5?-1:1,c=riverC(yy),hw=riverHW(yy);L.deco.push({k,x:c+side*(hw+srr(off0,off1)),y:yy,s:1,v:(srand()*3)|0,side,f:side<0?1:-1})}};
     if(S==='willow'||S==='marsh'){put('heron',3,-6,8,0.1,0.95);put('crane',2,60,150,0.15,0.9)}
-    if(S==='willow'||S==='pond'||S==='rapids')put('deer',2,50,140,0.1,0.9);
+    if(S==='willow'||S==='pond'||S==='rapids'){put('deer',1,50,140,0.1,0.5);const n0=L.deco.length;put('deer',2,4,10,0.2,0.95);for(let i=n0;i<L.deco.length;i++)L.deco[i].edge=1}
     if(S==='pond'||S==='rapids'||S==='willow')put('cabin',S==='willow'?1:3,120,200,0.1,0.9);
     if(D.boss){const ya=-len-80-ARENA_LEN-60,ca=riverC(ya);L.deco.push({k:'sign',t1:'WELCOME TO',t2:'MILFORD',x:ca-ARENA_HW-80,y:ya,s:1,v:0,side:-1});L.deco.push({k:'sign',t1:'MILFORD',t2:'CENTRAL PARK',x:ca+ARENA_HW+80,y:ya-40,s:1,v:0,side:1})}}
   L.deco.sort((a,b)=>b.y-a.y);

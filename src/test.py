@@ -101,7 +101,7 @@ async def run(b,name,full):
     await touch(cdp,'touchStart',[(0,R)]);await W(900);await touch(cdp,'touchEnd',[]);await W(500)
     if full: await m.screenshot(path=OUT+f'woolly-bear-{name}.png')
     sv=await E('({c:__A.carry,b:__A.bearsLv})');await W(2600);said=(await E('__A.audio.stats'))['said']
-    chk(f'[{name}] scoop a woolly bear, drop it on the shore -> Woolly Bear Hero +1',sc==1 and sv=={'c':0,'b':1},f'{sc} {sv}')
+    chk(f'[{name}] scoop a woolly bear, drop it on the shore -> Woolly Bear Hero +1',sc==1 and sv['c']==0 and sv['b']>=1,f'{sc} {sv}')
     chk(f'[{name}] voice "Woolly bear saved! Great job, Alex!"',any(k in said for k in('wb','wb2','wb3')),','.join(said[-6:]))
     # --- bonk: costs a heart, funny bonk, keeps playing
     await E('__A.inv=0;__A.hearts=3;(()=>{const r=__A.L.obj.find(o=>o.t==="rock");__A.tele(r.y+75,r.x);__A.boat.s=140})()');await W(900)

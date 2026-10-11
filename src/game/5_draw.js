@@ -23,8 +23,8 @@ function drawReflections(){if(L.D.style==='rapids')return;X.globalAlpha=0.2;for(
 function drawDeco(over){for(const d of L.deco){if(!vis(d.y,90))continue;const isW=d.k==='willow';if(isW!==!!over)continue;
   switch(d.k){case'tree':dspr(treeSpr(d.v),d.x,d.y,0.8*d.s);break;case'pine':dspr(pineSpr(d.v%3),d.x,d.y,0.9*d.s);break;case'willow':dspr(willowSpr(d.v),d.x,d.y,0.85*d.s,0,0.93);break;
     case'bush':dspr(bushSpr(d.v),d.x,d.y,d.s);break;case'reeds':dspr(reedsSpr(d.v%4),d.x,d.y,d.s);break;case'house':dspr(houseSpr(d.v),d.x+d.side*30,d.y,1);break;case'lamp':dspr(lampSpr(),d.x,d.y,1);break;
-    case'bench':dspr(benchSpr(),d.x,d.y,1,d.side*Math.PI/2);break;case'boulder':dspr(boulderSpr(d.v%3),d.x,d.y,d.s);break;case'lodge':dspr(lodgeSpr(),d.x,d.y,1);break;case'heron':dspr(heronSpr(d.f),d.x,d.y-20,1.3);break;case'crane':dspr(craneSpr(d.f),d.x,d.y-20,1.3);break;case'deer':dspr(deerSpr(d.f),d.x,d.y-12,1.25);break;
-    case'cabin':dspr(cabinSpr(d.v),d.x+d.side*30,d.y,1);break;case'mitten':dspr(mittenSpr(),d.x,d.y,1);break;case'sign':dspr(signSpr(d.t1,d.t2),d.x,d.y,1);break}}}
+    case'bench':dspr(benchSpr(),d.x,d.y,1,d.side*Math.PI/2);break;case'boulder':dspr(boulderSpr(d.v%3),d.x,d.y,d.s);break;case'lodge':dspr(lodgeSpr(),d.x,d.y,1);break;case'heron':{const ph=(T*0.22+d.y*0.013)%1,strike=ph>0.82&&ph<0.9,fish=ph>=0.9;dspr(heronSpr(d.f*(strike||fish?2:1)),d.x,d.y-20,1.3);if(strike||fish){const k=((ph-0.82)/0.18);X.beginPath();X.ellipse(d.x+d.f*22,d.y+8,4+k*14,2+k*6,0,0,TAU);X.strokeStyle='rgba(255,255,255,'+(0.7-k*0.6)+')';X.lineWidth=1.5;X.stroke()}break}case'crane':dspr(craneSpr(d.f),d.x,d.y-20,1.3);break;case'deer':{const ph=(T*0.15+d.y*0.007)%1,drink=d.edge&&ph>0.45;dspr(deerSpr(d.f*(drink?2:1)),d.x,d.y-12,1.25);if(drink){const k=((ph-0.45)*4)%1;X.beginPath();X.ellipse(d.x+d.f*33,d.y+8,3+k*12,1.5+k*5,0,0,TAU);X.strokeStyle='rgba(255,255,255,'+(0.65-k*0.6)+')';X.lineWidth=1.3;X.stroke()}break}
+    case'cabin':dspr(cabinSpr(d.v),d.x+d.side*30,d.y,1);break;case'mitten':dspr(mittenSpr(),d.x,d.y,1.15);break;case'sign':dspr(signSpr(d.t1,d.t2),d.x,d.y,1);break}}}
 function drawLeaves(){const cur=L.cur;for(const f of L.leaves){const y=f.y;if(!vis(y,20))continue;const x=riverC(y)+f.x*(riverHW(y)/200);dspr(leafSpr(f.c),x+Math.sin(T*0.6+f.rot)*3,y,f.s*0.75,f.rot+T*f.vr)}}
 function drawObjects(){const D=L.D;
   for(const o of L.obj){if(!vis(o.y,o.t==='dam'?60:70))continue;
@@ -91,6 +91,10 @@ function drawCanoe(){const b=boat;if(inv>0&&Math.floor(T*12)%2&&state==='play'){
   drawWake();X.save();X.translate(b.x,b.y);X.rotate(b.ang);
   if(canoeSel==='rocket'&&(b.rhythm>=2||b.s>120)){for(let i=0;i<3;i++){const k=R();ell(0,CL/2+8+k*14,5-k*3,8+k*8,i?'#ffd23f':'#ff6a1f')}}
   const s=canoeSpr(canoeSel);X.drawImage(s.c,-s.w/2,-s.h/2,s.w,s.h);
+  // canoe flair: rocket exhaust that grows with speed, pirate flag that flaps, hot dog mustard wiggle
+  if(canoeSel==='rocket'){const f=clamp(b.s/150,0.25,1.2)*(0.8+0.3*Math.sin(T*40));X.globalAlpha=0.9;X.beginPath();X.moveTo(-7,s.h/2-8);X.lineTo(0,s.h/2-6+26*f);X.lineTo(7,s.h/2-8);X.closePath();X.fillStyle='#ff9f1c';X.fill();X.beginPath();X.moveTo(-3.5,s.h/2-8);X.lineTo(0,s.h/2-6+14*f);X.lineTo(3.5,s.h/2-8);X.closePath();X.fillStyle='#fff3a0';X.fill();X.globalAlpha=1}
+  else if(canoeSel==='pirate'){const w=Math.sin(T*9)*3;line(0,-s.h/2+12,0,-s.h/2-6,'#5a3a1a',2);X.beginPath();X.moveTo(0,-s.h/2-6);X.quadraticCurveTo(9,-s.h/2-9+w,17,-s.h/2-5+w);X.lineTo(17,-s.h/2+5+w);X.quadraticCurveTo(9,-s.h/2+1+w,0,-s.h/2+4);X.closePath();X.fillStyle='#1d1d1d';X.fill();circ(8,-s.h/2-1+w*0.5,2.2,'#fff');line(5.5,-s.h/2+3,10.5,-s.h/2+1,'#fff',1)}
+  else if(canoeSel==='hotdog'){X.beginPath();for(let i=0;i<=14;i++){const yy=-s.h/2+18+i*(s.h-36)/14;X[i?'lineTo':'moveTo'](Math.sin(i*1.4+T*6)*2.2-8.5,yy)}X.strokeStyle='#ffd400';X.lineWidth=2;X.stroke()}
   if(canoeSel==='pirate'){line(0,-10,0,-40,'#4a2a14',2.4);X.beginPath();X.moveTo(0,-40);X.lineTo(16+Math.sin(T*6)*2,-35);X.lineTo(0,-29);X.fillStyle='#222';X.fill();circ(5,-35,1.8,'#fff')}
   if(b.poop){for(let i=0;i<Math.min(3,b.poop);i++)ell(-6+i*7,8-i*14,4,3,'rgba(240,244,228,0.95)')}
   // cargo on the bow: rescued woolly bears & a flower for the turtle
@@ -150,7 +154,7 @@ function drawParts(){for(const p of parts){const k=p.life/p.max;
   else{X.globalAlpha=1-k;circ(p.x,p.y,p.sz,p.col);X.globalAlpha=1}}}
 function drawFloats(){for(const f of floats){const k=f.t/1.4;X.globalAlpha=1-k*k;txt(f.s,f.x,f.y-k*30,f.sz,f.col,{sw:Math.max(3,f.sz*0.2)});X.globalAlpha=1}}
 function drawSmear(){for(const s of smear){const a=s.t<0.1?s.t*10:s.t>1.8?1-(s.t-1.8)/0.8:1;dspr(poopSpr(s.v),s.x,s.y+s.t*s.dr,s.s,0,clamp(a,0,1)*0.92)}}
-function drawWorld(){const sx=shake>0?rr(-1,1)*shake*10:0,sy=shake>0?rr(-1,1)*shake*10:0;X.save();X.translate(-camX+sx,-camY+sy);
+function drawWorld(){const sx=shake>0?Math.sin(T*57)*shake*9:0,sy=shake>0?Math.cos(T*43)*shake*6:0;X.save();X.translate(-camX+sx,-camY+sy);
   drawRiver();drawReflections();drawLeaves();drawDeco(false);drawObjects();drawBoss();
   for(const g of geese)ell(g.x+18,g.y+38,0,0,'#000');
   drawCanoe();drawDeco(true);drawBridges();drawTunnelArches();drawGeese();drawParts();drawFloats();

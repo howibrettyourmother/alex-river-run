@@ -162,25 +162,36 @@ function petoskeySpr(){return spr('petoskey',30,26,()=>{ell(1,3,12,8,'rgba(0,40,
   ell(-5,-4,3,1.4,'rgba(255,255,255,0.55)',-0.4)})}
 function drawPetoskey(x,y,t){const g=0.5+0.5*Math.sin(t*4+x);dspr(petoskeySpr(),x,y+Math.sin(t*2.5+x)*1.5,1);circ(x+6,y-5,1.4,'rgba(255,255,255,'+g+')')}
 // great blue heron (side view, standing in the shallows)
-function heronSpr(f){return spr('heron'+f,40,56,()=>{X.scale(f,1);ell(0,22,9,3,'rgba(0,40,60,0.25)');line(-2,8,-3,22,'#6a5a3a',1.2);line(2,8,3,22,'#6a5a3a',1.2);
-  ell(0,4,9,6,'#7d93ad',-0.3);ell(-5,6,6,3,'#5f7590',-0.2);X.beginPath();X.moveTo(5,1);X.quadraticCurveTo(12,-6,6,-12);X.quadraticCurveTo(2,-17,7,-20);X.strokeStyle='#8fa3bb';X.lineWidth=3;X.stroke();
-  circ(7.5,-20.5,2.8,'#e8ecef');line(6,-21.5,10,-23,'#1d1d1d',1);X.beginPath();X.moveTo(9.5,-21);X.lineTo(17,-19.6);X.lineTo(9.5,-19.4);X.closePath();X.fillStyle='#f2b51c';X.fill();circ(8.5,-21,0.7,'#111')})}
+function heronSpr(fv){return spr('heron'+fv,44,56,()=>{const fr=Math.abs(fv)>1,f=Math.sign(fv);X.scale(f,1);ell(0,22,9,3,'rgba(0,40,60,0.25)');line(-2,8,-3,22,'#6a5a3a',1.2);line(2,8,3,22,'#6a5a3a',1.2);
+  ell(0,4,9,6,'#7d93ad',-0.3);ell(-5,6,6,3,'#5f7590',-0.2);
+  if(!fr){X.beginPath();X.moveTo(5,1);X.quadraticCurveTo(12,-6,6,-12);X.quadraticCurveTo(2,-17,7,-20);X.strokeStyle='#8fa3bb';X.lineWidth=3;X.stroke();
+    circ(7.5,-20.5,2.8,'#e8ecef');line(6,-21.5,10,-23,'#1d1d1d',1);X.beginPath();X.moveTo(9.5,-21);X.lineTo(17,-19.6);X.lineTo(9.5,-19.4);X.closePath();X.fillStyle='#f2b51c';X.fill();circ(8.5,-21,0.7,'#111')}
+  else{// head down: caught a little fish!
+    X.beginPath();X.moveTo(6,2);X.quadraticCurveTo(14,2,16,12);X.strokeStyle='#8fa3bb';X.lineWidth=3;X.stroke();circ(16.5,13,2.8,'#e8ecef');X.beginPath();X.moveTo(17,14.5);X.lineTo(19,21);X.lineTo(15.5,15);X.closePath();X.fillStyle='#f2b51c';X.fill();
+    ell(19,20,4,1.8,'#c0c8cc',0.3);X.beginPath();X.moveTo(22,21);X.lineTo(25,19);X.lineTo(25,23);X.closePath();X.fillStyle='#c0c8cc';X.fill();circ(17.5,12.5,0.7,'#111')}})}
 // sandhill crane (grey, red forehead)
 function craneSpr(f){return spr('crane'+f,40,56,()=>{X.scale(f,1);ell(0,23,8,2.6,'rgba(0,0,0,0.2)');line(-2,8,-3,23,'#333',1.2);line(2,8,2,23,'#333',1.2);
   ell(0,4,9,6.5,'#9a958c',-0.2);ell(-7,6,5,4,'#7f7a70',0.3);X.beginPath();X.moveTo(5,0);X.quadraticCurveTo(9,-10,7,-19);X.strokeStyle='#a9a49a';X.lineWidth=2.6;X.stroke();
   circ(7.2,-20,2.6,'#d9d6cf');ell(7.4,-21.6,1.8,1.1,'#d62f2f');X.beginPath();X.moveTo(9,-20.5);X.lineTo(15,-19.5);X.lineTo(9,-19);X.closePath();X.fillStyle='#444';X.fill();circ(8,-20.4,0.6,'#111')})}
-// white-tailed deer on the bank
-function deerSpr(f){return spr('deer'+f,56,52,()=>{X.scale(f,1);ell(0,20,16,3,'rgba(0,0,0,0.2)');for(const lx of [-10,-6,7,11])line(lx,4,lx,19,'#7a5232',2);
-  ell(0,2,15,7,'#a8713f');ell(-14,-1,3,3.6,'#fff');ell(-15,-2,2,2.2,'#a8713f');X.beginPath();X.moveTo(10,0);X.lineTo(15,-12);X.lineTo(19,-11);X.lineTo(15,2);X.closePath();X.fillStyle='#a8713f';X.fill();
-  ell(18,-13,5,3.4,'#a8713f',0.3);ell(22,-12,2,1.6,'#3a2a1a');ell(15,-17,1.6,3.4,'#8a5a32',-0.4);ell(19,-18,1.6,3.4,'#8a5a32',0.3);circ(18.5,-14,0.9,'#111');ell(12,2,3,4,'#f2e6d6')})}
+// white-tailed deer on the bank (frame 2: head down, drinking)
+function deerSpr(fv){return spr('deer'+fv,60,52,()=>{const fr=Math.abs(fv)>1,f=Math.sign(fv);X.scale(f,1);ell(0,20,16,3,'rgba(0,0,0,0.2)');for(const lx of [-10,-6,7,11])line(lx,4,lx,19,'#7a5232',2);
+  ell(0,2,15,7,'#a8713f');ell(-14,-1,3,3.6,'#fff');ell(-15,-2,2,2.2,'#a8713f');ell(12,2,3,4,'#f2e6d6');
+  if(!fr){X.beginPath();X.moveTo(10,0);X.lineTo(15,-12);X.lineTo(19,-11);X.lineTo(15,2);X.closePath();X.fillStyle='#a8713f';X.fill();
+    ell(18,-13,5,3.4,'#a8713f',0.3);ell(22,-12,2,1.6,'#3a2a1a');ell(15,-17,1.6,3.4,'#8a5a32',-0.4);ell(19,-18,1.6,3.4,'#8a5a32',0.3);circ(18.5,-14,0.9,'#111')}
+  else{X.beginPath();X.moveTo(10,-2);X.lineTo(22,8);X.lineTo(20,12);X.lineTo(9,4);X.closePath();X.fillStyle='#a8713f';X.fill();
+    ell(24,12,5,3.2,'#a8713f',0.6);ell(27,15,2,1.5,'#3a2a1a');ell(20,6,1.6,3.4,'#8a5a32',-0.9);ell(23,5,1.6,3.4,'#8a5a32',-0.4);circ(23.5,10.5,0.9,'#111')}})}
 // Up North-style log cabin (roof view, like the houses) with a stone chimney
 function cabinSpr(v){return spr('cabin'+v,92,80,()=>{X.fillStyle='rgba(0,0,0,0.25)';X.fillRect(-36,-24,78,56);const c=['#7a4a26','#6a4020','#845432'][v%3];X.fillStyle=c;X.fillRect(-40,-28,80,54);
   X.fillStyle=shade(c,0.18);X.fillRect(-40,-28,80,27);for(let i=0;i<6;i++)line(-40,-28+i*9,40,-28+i*9,shade(c,-0.3),1);line(-40,-1,40,-1,shade(c,-0.45),2);
   X.fillStyle='#8a8580';X.fillRect(18,-24,12,12);X.fillStyle='#6a655f';X.fillRect(18,-24,12,3);X.fillStyle='#b98a52';X.fillRect(-30,26,60,8);for(let i=0;i<6;i++)line(-30+i*12,26,-30+i*12,34,'#8a6234',1)})}
 // mitten sign: "You are here" on the Lower Peninsula (Milford is in the southeast, near the base of the palm)
-function mittenSpr(){return spr('mitten',96,96,()=>{line(-20,34,-20,10,'#6a4a2a',4);line(20,34,20,10,'#6a4a2a',4);rrect(-40,-38,80,56,8);X.fillStyle='#2f6fa3';X.fill();X.strokeStyle='#f2e6c9';X.lineWidth=2.5;X.stroke();
-  X.beginPath();X.moveTo(-14,10);X.quadraticCurveTo(-24,-6,-16,-22);X.quadraticCurveTo(-8,-34,4,-30);X.quadraticCurveTo(12,-26,10,-16);X.quadraticCurveTo(14,-20,19,-15);X.quadraticCurveTo(22,-8,14,-2);X.quadraticCurveTo(12,8,4,12);X.closePath();X.fillStyle='#fff';X.fill();
-  circ(6,4,2.6,'#e53935');txt('YOU ARE HERE',0,14,6.4,'#ffe14d',{sw:0})})}
+function mittenSpr(){return spr('mitten2',110,112,()=>{line(-26,44,-26,18,'#6a4a2a',5);line(26,44,26,18,'#6a4a2a',5);ell(0,46,34,5,'rgba(0,0,0,0.2)');
+  rrect(-48,-50,96,74,10);X.fillStyle='#2f6fa3';X.fill();X.strokeStyle='#f2e6c9';X.lineWidth=3;X.stroke();txt('MICHIGAN',0,-41,8.5,'#ffe14d',{sw:0});
+  // Lower Peninsula ("the mitten"): thumb on the east side, Saginaw Bay between thumb and fingers
+  const P=[[0.02,1],[0.7,1],[0.76,0.93],[0.8,0.82],[0.86,0.66],[0.93,0.5],[0.96,0.42],[0.9,0.37],[0.79,0.45],[0.7,0.5],[0.66,0.42],[0.71,0.3],[0.73,0.17],[0.66,0.04],[0.52,-0.04],[0.4,-0.02],[0.3,0.06],[0.26,0.17],[0.2,0.13],[0.16,0.2],[0.13,0.34],[0.1,0.5],[0.05,0.66],[0.01,0.84]];
+  const ox=-24,oy=-30,sx=48,sy=46;X.beginPath();P.forEach(([px,py],i)=>X[i?'lineTo':'moveTo'](ox+px*sx,oy+py*sy));X.closePath();X.fillStyle='#fff';X.fill();X.strokeStyle='#cfe3f2';X.lineWidth=1;X.stroke();
+  const mx=ox+0.66*sx,my=oy+0.86*sy;circ(mx,my,3.2,'#e53935');X.strokeStyle='#fff';X.lineWidth=1;X.stroke();txt('YOU ARE HERE',0,19,7,'#ffe14d',{sw:0});
+  X.beginPath();X.moveTo(mx+4,my+2);X.lineTo(22,14);X.strokeStyle='#ffe14d';X.lineWidth=1;X.stroke()})}
 // cider jug + donuts (Michigan cider mill tradition) for the finish
 function drawCider(x,y,s){X.save();X.translate(x,y);X.scale(s,s);ell(2,24,18,4,'rgba(0,0,0,0.2)');rrect(-11,-8,22,32,7);X.fillStyle='#c46a1e';X.fill();rrect(-11,-8,22,32,7);X.strokeStyle='rgba(255,255,255,0.5)';X.lineWidth=1.2;X.stroke();
   rrect(-5,-18,10,11,3);X.fillStyle='#e8d9b5';X.fill();X.beginPath();X.arc(11,4,6,-1.2,1.2);X.strokeStyle='#c46a1e';X.lineWidth=3;X.stroke();rrect(-8,2,16,10,3);X.fillStyle='#fff3d6';X.fill();txt('CIDER',0,7,4.6,'#7a3a10',{sw:0});X.restore()}
