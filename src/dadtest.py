@@ -23,7 +23,7 @@ async def one(b,name):
         for k,(where,yexpr) in enumerate(sc):
             for mode in (['drive','idle'] if where=='mid' else ['drive']):
                 await E(f'__A.inv=99;__A.hearts=3;__A.tele({yexpr});__A.dad.st="boat";__A.dad.self=0');await W(250)
-                await E('__A.dunk("sneeze")');await W(2700)
+                await E('__A.dunk("sneeze")');await W(4100)
                 s=await E('({st:__A.dad.st,dx:__A.dad.x-__A.cam.x,dy:__A.dad.y-__A.cam.y,ah:__A.boat.y-__A.dad.y,VW:__A.VW,VH:__A.VH})')
                 tag=f'[{name}] {nm} / {where}'
                 chk(f'{tag}: Dad lands in the water ahead of / beside the canoe, on screen',s['st']=='water' and 0<s['dx']<s['VW'] and 0<s['dy']<s['VH'] and s['ah']>=15,json.dumps(s))

@@ -159,7 +159,7 @@ function drawWorld(){const sx=shake>0?rr(-1,1)*shake*10:0,sy=shake>0?rr(-1,1)*sh
 // "Paddle to Dad!" helper: pulsing pickup ring around Dad + an arrow from the canoe pointing at him
 function drawDadHint(){if(dad.st!=='water'||state!=='play')return;const dx=dad.x-boat.x,dy=dad.y-boat.y,d=Math.hypot(dx,dy)||1,p=0.5+0.5*Math.sin(T*7);
   X.lineWidth=3;X.strokeStyle='rgba(255,225,77,'+(0.55+0.4*p)+')';X.setLineDash([8,6]);X.beginPath();X.arc(dad.x,dad.y,26+DAD_GRAB*0.5+p*4,0,TAU);X.stroke();X.setLineDash([]);
-  txt(dad.self?'Doggy paddle!':'Paddle to Dad!',dad.x,dad.y-44-p*3,13,'#ffe14d',{st:'#5a2a00',sw:4});
+  if(dad.t>1.3||dad.self)txt(dad.self?'Doggy paddle!':'Paddle to Dad!',dad.x,dad.y-46-p*3,14,'#ffe14d',{st:'#5a2a00',sw:4});
   if(d>70){const ux=dx/d,uy=dy/d,r0=46,ax=boat.x+ux*r0,ay=boat.y+uy*r0,L2=Math.min(46,d-60);X.save();X.translate(ax,ay);X.rotate(Math.atan2(uy,ux));X.globalAlpha=0.75+0.25*p;
     X.fillStyle='#ffe14d';X.strokeStyle='#5a2a00';X.lineWidth=3;X.beginPath();X.moveTo(0,-5);X.lineTo(L2,-5);X.lineTo(L2,-13);X.lineTo(L2+18,0);X.lineTo(L2,13);X.lineTo(L2,5);X.lineTo(0,5);X.closePath();X.stroke();X.fill();X.restore()}
-  if(dad.self===undefined||!dad.self){const left=Math.max(0,10-dad.t);if(left<4){txt('Dad is coming in '+Math.ceil(left)+'...',dad.x,dad.y+40,11,'#fff',{sw:3})}}}
+  if(dad.self===undefined||!dad.self){const left=Math.max(0,10-dad.t);if(left<4){txt('Dad swims over in '+Math.ceil(left)+'...',dad.x,dad.y+62,11,'#fff',{sw:3})}}}
