@@ -31,9 +31,9 @@ async def main():
                 stuck=stuck+1 if s['y']==lasty else 0;lasty=s['y']
             if k:shots.add(k);await m.screenshot(path=OUT+f'{k}-{DEV}.png')
             await m.wait_for_timeout(200)
-        r=await m.evaluate('({s:__A.state,score:__A.score,run:__A.run,end:__A.endStats,board:__A.board,canoes:__A.canoes,v:__A.audio.stats,bonks:__A.bonkLog.length})')
-        print(json.dumps({k:v for k,v in r.items() if k!='v'}));print('voice',r['v'].get('voice'),'dropped',r['v'].get('dropped'),'|',', '.join(r['v']['said'][-40:]))
-        print('levels seen',seen,'states',sorted(states),'min hearts',minH,'real secs',round(asyncio.get_event_loop().time()-t0))
+        r=await m.evaluate('({s:__A.state,score:__A.score,run:__A.run,end:__A.endStats,board:__A.board,canoes:__A.canoes,v:__A.audio.stats,bonkLog:__A.bonkLog})')
+        print(json.dumps({k:v for k,v in r.items() if k not in ('v','bonkLog')}));print('voice',r['v'].get('voice'),'dropped',r['v'].get('dropped'),'|',', '.join(r['v']['said'][-40:]))
+        import collections;print('bonks per level',dict(collections.Counter(x.split('/lv')[1] for x in r['bonkLog'])));print('levels seen',seen,'states',sorted(states),'min hearts',minH,'real secs',round(asyncio.get_event_loop().time()-t0))
         chk('reached the end screen after making the snapping turtle happy',r['s']=='end')
         chk('played all 5 levels in order',seen==[0,1,2,3,4],str(seen));chk('4 level clears + boss win',clears==4 and 'bosswin' in states,f'{clears}')
         e=r['end'] or {}
