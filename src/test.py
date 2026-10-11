@@ -96,9 +96,9 @@ async def run(b,name,full):
     hud={u['id']:u for u in await E('__A.hud')};pc=await E(f'__A.toClient({hud["pause"]["x"]},{hud["pause"]["y"]})');await m.touchscreen.tap(pc['x'],pc['y']);await W(250)
     chk(f'[{name}] pause button',await E('__A.paused'));await tapL('resume');chk(f'[{name}] resume',not await E('__A.paused') and await E('__A.nptrs')==0)
     # --- woolly bear: scoop with the bow, then drop it on the shore
-    await E('(()=>{const b=__A.L.obj.find(o=>o.t==="bear"&&o.st==="float");__A.tele(b.y+70,b.x);__A.boat.s=60})()');await W(1200)
+    await E('__A.L.dadEv.forEach(e=>e.done=1);(()=>{const b=__A.L.obj.find(o=>o.t==="bear"&&o.st==="float");__A.tele(b.y+70,b.x);__A.boat.s=60})()');await W(1200)
     sc=await E('__A.carry');await E('(()=>{const B=__A.boat;B.x=__A.riverC(B.y)+__A.riverHW(B.y)-60})()')
-    await touch(cdp,'touchStart',[(0,L)]);await W(900);await touch(cdp,'touchEnd',[]);await W(500)
+    await touch(cdp,'touchStart',[(0,R)]);await W(900);await touch(cdp,'touchEnd',[]);await W(500)
     if full: await m.screenshot(path=OUT+f'woolly-bear-{name}.png')
     sv=await E('({c:__A.carry,b:__A.bearsLv})');await W(2600);said=(await E('__A.audio.stats'))['said']
     chk(f'[{name}] scoop a woolly bear, drop it on the shore -> Woolly Bear Hero +1',sc==1 and sv=={'c':0,'b':1},f'{sc} {sv}')
@@ -126,7 +126,7 @@ async def run(b,name,full):
         if await E('__A.dad.st')=='boat':break
     await E('__A.bot(false)');ds=await E('({st:__A.dad.st,sg:__A.dad.soggy})');chk(f'[{name}] Dad splashes in, gets scooped back up, soggier',d=='water' and ds=={'st':'boat','sg':1},f'{d} {ds}')
     # --- rubber duck
-    await E('(()=>{const d=__A.L.obj.find(o=>o.t==="rduck");__A.tele(d.y+40,d.x)})()');await W(700);chk(f'[{name}] hidden rubber duck found',0 in await E('__A.ducks'))
+    await E('(()=>{const d=__A.L.obj.find(o=>o.t==="rduck");__A.tele(d.y+40,d.x)})()');await W(700);chk(f'[{name}] hidden rubber duck found',await E('__A.ducks.includes(__A.lv)'))
     # --- coverage self-check so far
     cv=await E('__A.cov');chk(f'[{name}] paddle buttons never covered Alex/Dad/upcoming hazards ({cv["n"]} frames)',por or (cv['n']>100 and cv['viol']==0),json.dumps(cv))
     # --- level clear

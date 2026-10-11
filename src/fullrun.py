@@ -40,6 +40,7 @@ async def main():
         chk('woolly bears rescued across the run',e.get('bears',0)>=8,f"{e.get('bears')}/{e.get('bearsTotal')}")
         chk('Dad went overboard and got fished out several times',e.get('dunks',0)>=5,str(e.get('dunks')))
         chk('forgiving: no game over, only checkpoint restarts',True,f"bonks={e.get('bonks')} minHearts={minH}")
+        chk('Petoskey stones collected',e.get('stones',0)>=3,str(e.get('stones')))
         chk('time on local leaderboard',len(r['board'])>=1,str(r['board'][:1]))
         chk('canoes unlocked during run',len(r['canoes'])>=2,str(r['canoes']))
         chk('many voice lines, one at a time',(r['v'].get('voice') or len(r['v']['said']))>=15)

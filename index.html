@@ -4,7 +4,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="River Run"><meta name="mobile-web-app-capable" content="yes"><meta name="application-name" content="River Run"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#2c6474">
 <meta name="format-detection" content="telephone=no">
 <title>Alex's River Run — a canoe adventure with Dad</title>
-<meta name="description" content="Paddle a silver canoe down a fall river with Alex and Dad, rescue woolly bear caterpillars, dodge geese, and cheer up a grumpy snapping turtle!">
+<meta name="description" content="Paddle a silver canoe down Michigan's Huron River to Milford with Alex and Dad, rescue woolly bear caterpillars, dodge geese, and cheer up a grumpy snapping turtle!">
 <meta property="og:type" content="website"><meta property="og:title" content="Alex's River Run 🛶">
 <meta property="og:description" content="Paddle, rescue woolly bears, fish Dad out of the river (again), and cheer up a giant grumpy snapping turtle!">
 <meta property="og:image" content="https://howibrettyourmother.github.io/alex-river-run/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
@@ -342,7 +342,7 @@ function buildLevel(i){const D=LEVELS[i];seed=D.seed*7919+13;const len=D.len,end
     else L.deco.push({k,x,y:yy,side,s:srr(0.75,1.25),v:(srand()*6)|0})}
   if(D.style==='pond')L.deco.push({k:'lodge',x:riverC(-len*0.52)+riverHW(-len*0.52)+70,y:-len*0.52,s:1,v:0,side:1});
   // Michigan wildlife & touches on the banks
-  {const S=D.style,c0=riverC(-150),h0=riverHW(-150);L.deco.push({k:'mitten',x:c0-h0-60,y:-150,s:1,v:0,side:-1});
+  {const S=D.style,c0=riverC(-150),h0=riverHW(-150);const mx=c0-h0-48;L.deco=L.deco.filter(d=>dist2(d.x,d.y,mx,-150)>95*95);L.deco.push({k:'mitten',x:mx,y:-150,s:1,v:0,side:-1});
     const put=(k,n,off0,off1,f0,f1)=>{for(let i=0;i<n;i++){const yy=-len*srr(f0+(f1-f0)*i/n,f0+(f1-f0)*(i+0.8)/n);if(inTunnel(yy))continue;const side=srand()<0.5?-1:1,c=riverC(yy),hw=riverHW(yy);L.deco.push({k,x:c+side*(hw+srr(off0,off1)),y:yy,s:1,v:(srand()*3)|0,side,f:side<0?1:-1})}};
     if(S==='willow'||S==='marsh'){put('heron',3,-6,8,0.1,0.95);put('crane',2,60,150,0.15,0.9)}
     if(S==='willow'||S==='pond'||S==='rapids')put('deer',2,50,140,0.1,0.9);
@@ -765,7 +765,7 @@ function drawReflections(){if(L.D.style==='rapids')return;X.globalAlpha=0.2;for(
 function drawDeco(over){for(const d of L.deco){if(!vis(d.y,90))continue;const isW=d.k==='willow';if(isW!==!!over)continue;
   switch(d.k){case'tree':dspr(treeSpr(d.v),d.x,d.y,0.8*d.s);break;case'pine':dspr(pineSpr(d.v%3),d.x,d.y,0.9*d.s);break;case'willow':dspr(willowSpr(d.v),d.x,d.y,0.85*d.s,0,0.93);break;
     case'bush':dspr(bushSpr(d.v),d.x,d.y,d.s);break;case'reeds':dspr(reedsSpr(d.v%4),d.x,d.y,d.s);break;case'house':dspr(houseSpr(d.v),d.x+d.side*30,d.y,1);break;case'lamp':dspr(lampSpr(),d.x,d.y,1);break;
-    case'bench':dspr(benchSpr(),d.x,d.y,1,d.side*Math.PI/2);break;case'boulder':dspr(boulderSpr(d.v%3),d.x,d.y,d.s);break;case'lodge':dspr(lodgeSpr(),d.x,d.y,1);break;case'heron':dspr(heronSpr(d.f),d.x,d.y-16,1);break;case'crane':dspr(craneSpr(d.f),d.x,d.y-16,1);break;case'deer':dspr(deerSpr(d.f),d.x,d.y-10,1);break;
+    case'bench':dspr(benchSpr(),d.x,d.y,1,d.side*Math.PI/2);break;case'boulder':dspr(boulderSpr(d.v%3),d.x,d.y,d.s);break;case'lodge':dspr(lodgeSpr(),d.x,d.y,1);break;case'heron':dspr(heronSpr(d.f),d.x,d.y-20,1.3);break;case'crane':dspr(craneSpr(d.f),d.x,d.y-20,1.3);break;case'deer':dspr(deerSpr(d.f),d.x,d.y-12,1.25);break;
     case'cabin':dspr(cabinSpr(d.v),d.x+d.side*30,d.y,1);break;case'mitten':dspr(mittenSpr(),d.x,d.y,1);break;case'sign':dspr(signSpr(d.t1,d.t2),d.x,d.y,1);break}}}
 function drawLeaves(){const cur=L.cur;for(const f of L.leaves){const y=f.y;if(!vis(y,20))continue;const x=riverC(y)+f.x*(riverHW(y)/200);dspr(leafSpr(f.c),x+Math.sin(T*0.6+f.rot)*3,y,f.s*0.75,f.rot+T*f.vr)}}
 function drawObjects(){const D=L.D;
