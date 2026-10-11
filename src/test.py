@@ -38,7 +38,7 @@ async def run(b,name,full):
     if full: await m.screenshot(path=OUT+f'records-{name}.png')
     await tapL('back');await W(400)
     if full: await m.screenshot(path=OUT+f'title-{name}.png')
-    await tapL('play');await W(900);chk(f'[{name}] PLAY -> Town Canal card',await E('__A.state==="card"&&__A.lv===0'))
+    await tapL('play');await W(900);chk(f'[{name}] PLAY -> Proud Lake card',await E('__A.state==="card"&&__A.lv===0'))
     await m.touchscreen.tap(vp[0]*0.5,vp[1]*0.4);await W(300);chk(f'[{name}] tap card -> paddling',await E('__A.state')=='play')
     await E('__A.inv=99;__A.tele(-700)');await W(100)
     L=(c['L']['x'],c['L']['y']);R=(c['R']['x'],c['R']['y'])
@@ -109,7 +109,8 @@ async def run(b,name,full):
     await E('__A.inv=0;__A.hearts=1;(()=>{const r=__A.L.obj.filter(o=>o.t==="rock")[1];__A.tele(r.y+75,r.x);__A.boat.s=140})()');await W(900)
     oo=await E('__A.state');await W(2600);rp=await E('({s:__A.state,h:__A.hearts,y:__A.boat.y})')
     chk(f'[{name}] out of hearts -> "Oopsie!" -> restart at checkpoint buoy with full hearts',oo=='oops' and rp['s']=='play' and rp['h']==3,f'{oo} {rp}')
-    # --- tunnel headlamp + low bridge duck
+    # --- tunnel headlamp + low bridge duck (level 4: Bridges into Milford)
+    await E('__A.unlockLv=Math.max(__A.unlockLv,4);__A.newRun(3)');await W(300);await E('__A.startPlay()');await W(200)
     await E('__A.inv=99;__A.tele(__A.L.tunnels[0].y0-160)');await W(500)
     if full: await m.screenshot(path=OUT+f'tunnel-{name}.png')
     await E('__A.tele(__A.L.bridges[1].y+6)');await W(450);chk(f'[{name}] auto-duck under low bridge',await E('__A.boat.duck')>0.8)
@@ -157,7 +158,7 @@ async def perf(b):
     await m.goto(BASE+('&' if '?' in BASE else '?')+'debug=1');await W(600);await m.touchscreen.tap(500,10);await W(300)
     await cdp.send('Emulation.setCPUThrottlingRate',{'rate':4})
     out={}
-    for nm,lv,js in [('canal tunnel',0,'__A.tele(__A.L.tunnels[0].y0+60)'),('marsh',2,'__A.tele(-3000)'),('rapids',4,'__A.tele(-2500)'),('boss',4,'__A.tele(__A.L.arena.y0-40)')]:
+    for nm,lv,js in [('tunnel',3,'__A.tele(__A.L.tunnels[0].y0+60)'),('marsh',1,'__A.tele(-3000)'),('rapids',4,'__A.tele(-2500)'),('boss',4,'__A.tele(__A.L.arena.y0-40)')]:
         await E(f'__A.unlockLv=5;__A.newRun({lv})');await W(300);await E('__A.startPlay();__A.inv=99');await E(js);await E('__A.bot(true)');await W(1500);await E('__A.resetPerf()');await W(5000)
         out[nm]=await E('({fps:Math.round(__A.fps),work:+__A.work.toFixed(2),max:+__A.workMax.toFixed(1),dpr:__A.DPR})');await E('__A.bot(false)')
     print('PERF (iPad 1024x768 @2x, CPU throttled 4x):',json.dumps(out),flush=True)
