@@ -1,5 +1,5 @@
 // ================= rendering: river world, characters, overlays =================
-let dk=null,dkx=null;// half-res darkness layer for tunnels (cheap on the A10)
+let dk=null;// cached half-res headlamp mask for tunnels (cheap on the A10)
 function vis(y,m){return y>camY-(m||80)&&y<camY+VH+(m||80)}
 function drawRiver(){const D=L.D,y0=camY-40,y1=camY+VH+40;X.fillStyle=D.bank;X.fillRect(camX-10,camY-10,VW+20,VH+20);
   // bank texture: soft patches + fallen leaves on the grass
@@ -69,17 +69,20 @@ function drawTunnelArches(){for(const t of L.tunnels){for(const y of [t.y0,t.y1]
     for(let x=Math.floor((camX-10)/22)*22;x<camX+VW+22;x+=22){X.fillStyle=((x/22)|0)%2?'#85817a':'#77736c';X.fillRect(x+1,y-15,20,14);X.fillRect(x+12,y+1,20,14)}
     X.fillStyle='rgba(10,10,20,0.55)';X.beginPath();X.ellipse(c,y+(y===t.y0?14:-14),hw*0.9,12,0,y===t.y0?0:Math.PI,y===t.y0?Math.PI:TAU);X.fill();
     if(y===t.y0&&boat.y>y)txt('TUNNEL',c,y,12,'#ffe9a0',{sw:3})}}}
+function headMask(){if(dk)return dk;const len=290,sp=0.46,S=len*2,k=0.5,c=document.createElement('canvas');c.width=c.height=S*k;const g=c.getContext('2d');g.scale(k,k);
+  g.fillStyle='rgba(4,6,16,0.93)';g.fillRect(0,0,S,S);g.globalCompositeOperation='destination-out';const ax=len,ay=len,a=-Math.PI/2;
+  const gr=g.createRadialGradient(ax,ay,10,ax,ay,len);gr.addColorStop(0,'rgba(0,0,0,1)');gr.addColorStop(0.7,'rgba(0,0,0,0.85)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.beginPath();g.moveTo(ax,ay);g.arc(ax,ay,len-2,a-sp,a+sp);g.closePath();g.fill();
+  const g2=g.createRadialGradient(ax,ay+20,10,ax,ay+20,95);g2.addColorStop(0,'rgba(0,0,0,0.85)');g2.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=g2;g.fillRect(ax-100,ay-80,200,200);
+  g.globalCompositeOperation='source-over';g.globalAlpha=0.1;g.fillStyle='#fff3a0';g.beginPath();g.moveTo(ax,ay);g.arc(ax,ay,len*0.8,a-sp*0.8,a+sp*0.8);g.closePath();g.fill();
+  dk={c,len};return dk}
+// tunnel darkness: one cached half-res headlamp mask (cone + glow) rotated with the canoe; the rest is a single dark fill (no per-frame offscreen compositing)
 function drawDarkness(){let t=null;for(const q of L.tunnels)if(q.y1<camY+VH&&q.y0>camY){t=q;break}if(!t)return;
-  const w=Math.ceil(VW/2),h=Math.ceil(VH/2);if(!dk||dk.width!==w||dk.height!==h){dk=document.createElement('canvas');dk.width=w;dk.height=h;dkx=dk.getContext('2d')}
-  const g=dkx;g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,w,h);g.setTransform(0.5,0,0,0.5,0,0);const sy0=t.y1-camY+14,sy1=t.y0-camY-14;g.globalCompositeOperation='source-over';g.fillStyle='rgba(4,6,16,0.93)';g.fillRect(0,Math.max(0,sy0),VW,Math.min(VH,sy1)-Math.max(0,sy0));
-  g.globalCompositeOperation='destination-out';const ax=boat.x-camX+Math.sin(boat.ang)*20,ay=boat.y-camY-Math.cos(boat.ang)*20,a=-Math.PI/2+boat.ang,len=290,sp=0.46;
-  const gr=g.createRadialGradient(ax,ay,10,ax,ay,len);gr.addColorStop(0,'rgba(0,0,0,1)');gr.addColorStop(0.7,'rgba(0,0,0,0.85)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.beginPath();g.moveTo(ax,ay);g.arc(ax,ay,len,a-sp,a+sp);g.closePath();g.fill();
-  const g2=g.createRadialGradient(boat.x-camX,boat.y-camY,10,boat.x-camX,boat.y-camY,95);g2.addColorStop(0,'rgba(0,0,0,0.85)');g2.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=g2;g.fillRect(boat.x-camX-100,boat.y-camY-100,200,200);
-  if(dadOut()){const dx=dad.x-camX,dy=dad.y-camY;g.fillStyle='rgba(0,0,0,0.7)';g.beginPath();g.arc(dx,dy,36,0,TAU);g.fill()}
-  for(const o of L.obj)if(o.t==='acorn'&&!o.got&&o.y>t.y1&&o.y<t.y0&&vis(o.y)){g.fillStyle='rgba(0,0,0,0.6)';g.beginPath();g.arc(o.x-camX,o.y-camY,12,0,TAU);g.fill()}
-  g.globalCompositeOperation='source-over';X.drawImage(dk,camX,camY,VW,VH);
-  // warm headlamp tint
-  X.globalAlpha=0.12;X.fillStyle='#fff3a0';X.beginPath();X.moveTo(ax+camX,ay+camY);X.arc(ax+camX,ay+camY,len*0.8,a-sp*0.8,a+sp*0.8);X.closePath();X.fill();X.globalAlpha=1}
+  const top=Math.max(camY,t.y1+14),bot=Math.min(camY+VH,t.y0-14);if(bot<=top)return;const m=headMask(),len=m.len;
+  const ax=boat.x+Math.sin(boat.ang)*20,ay=boat.y-Math.cos(boat.ang)*20;
+  X.save();X.beginPath();X.rect(camX-2,top,VW+4,bot-top);X.clip();X.translate(ax,ay);X.rotate(boat.ang);X.drawImage(m.c,-len,-len,len*2,len*2);
+  const B=2400,e=len-1.5;X.fillStyle='rgba(4,6,16,0.93)';X.beginPath();X.rect(-B,-B,2*B,2*B);X.rect(-e,-e,2*e,2*e);X.fill('evenodd');X.restore();
+  if(dadOut()&&dad.y>top&&dad.y<bot){X.globalAlpha=0.35;circ(dad.x,dad.y,30,'#fff3a0');X.globalAlpha=1;drawDadSwim(dad.x,dad.y,T,dad.soggy)}
+  for(const o of L.obj)if(o.t==='acorn'&&!o.got&&o.y>top&&o.y<bot&&vis(o.y)){X.globalAlpha=0.5+0.3*Math.sin(T*6+o.x);circ(o.x,o.y,5,o.pk?'#cfd8dc':'#ffd23f');X.globalAlpha=1}}
 function drawWake(){const sp=boat.s+L.cur;if(sp<20)return;const a=clamp(sp/250,0,0.6),c=Math.cos(boat.ang),s=Math.sin(boat.ang),bx=boat.x+s*40,by=boat.y-c*40;
   X.strokeStyle='rgba(255,255,255,'+a+')';X.lineWidth=2;for(const k of [-1,1]){X.beginPath();X.moveTo(bx,by);X.lineTo(boat.x+k*34-s*80,boat.y+c*90);X.stroke()}
   for(let i=0;i<3;i++){const k=((T*1.4+i/3)%1);ell(boat.x-s*(50+k*40),boat.y+c*(50+k*40),10+k*16,4+k*4,'rgba(255,255,255,'+(a*0.5*(1-k))+')')}}
@@ -150,5 +153,12 @@ function drawWorld(){const sx=shake>0?rr(-1,1)*shake*10:0,sy=shake>0?rr(-1,1)*sh
   drawRiver();drawReflections();drawLeaves();drawDeco(false);drawObjects();drawBoss();
   for(const g of geese)ell(g.x+18,g.y+38,0,0,'#000');
   drawCanoe();drawDeco(true);drawBridges();drawTunnelArches();drawGeese();drawParts();drawFloats();
-  drawDarkness();
+  drawDarkness();drawDadHint();
   X.restore();drawSmear()}
+// "Paddle to Dad!" helper: pulsing pickup ring around Dad + an arrow from the canoe pointing at him
+function drawDadHint(){if(dad.st!=='water'||state!=='play')return;const dx=dad.x-boat.x,dy=dad.y-boat.y,d=Math.hypot(dx,dy)||1,p=0.5+0.5*Math.sin(T*7);
+  X.lineWidth=3;X.strokeStyle='rgba(255,225,77,'+(0.55+0.4*p)+')';X.setLineDash([8,6]);X.beginPath();X.arc(dad.x,dad.y,26+DAD_GRAB*0.5+p*4,0,TAU);X.stroke();X.setLineDash([]);
+  txt(dad.self?'Doggy paddle!':'Paddle to Dad!',dad.x,dad.y-44-p*3,13,'#ffe14d',{st:'#5a2a00',sw:4});
+  if(d>70){const ux=dx/d,uy=dy/d,r0=46,ax=boat.x+ux*r0,ay=boat.y+uy*r0,L2=Math.min(46,d-60);X.save();X.translate(ax,ay);X.rotate(Math.atan2(uy,ux));X.globalAlpha=0.75+0.25*p;
+    X.fillStyle='#ffe14d';X.strokeStyle='#5a2a00';X.lineWidth=3;X.beginPath();X.moveTo(0,-5);X.lineTo(L2,-5);X.lineTo(L2,-13);X.lineTo(L2+18,0);X.lineTo(L2,13);X.lineTo(L2,5);X.lineTo(0,5);X.closePath();X.stroke();X.fill();X.restore()}
+  if(dad.self===undefined||!dad.self){const left=Math.max(0,10-dad.t);if(left<4){txt('Dad is coming in '+Math.ceil(left)+'...',dad.x,dad.y+40,11,'#fff',{sw:3})}}}

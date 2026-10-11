@@ -36,7 +36,7 @@ function stepBoat(dt){const both=inp.l&&inp.r;
   if(T-boat.lastStroke>1.1&&boat.rhythm>0){boat.rhythm--;boat.lastStroke=T-0.6}
   boat.s-=boat.s*0.42*dt;boat.vx*=Math.exp(-1.9*dt);boat.vx=clamp(boat.vx,-160,160);
   boat.ph=Math.min(1,boat.ph+dt/0.45);boat.dph=Math.min(1,boat.dph+dt/0.45);
-  const cur=L.arena&&boat.y<L.arena.y0+60?0:L.cur;
+  const cur=curNow(boat.y);
   boat.y-=(boat.s+cur)*dt;boat.x+=boat.vx*dt;
   // banks (soft bounce, no damage)
   const c=riverC(boat.y),hw=(L.arena&&boat.y<L.arena.y0?L.arena.hw:riverHW(boat.y))-15;
@@ -109,17 +109,28 @@ function stepDad(dt){dad.t+=dt;const D=dad;
   else if(D.st==='wind'){const k=D.k,dur=k==='sneeze'?1.85:k==='hat'?1.7:1.5;
     if(k==='hat'){D.reach=D.t>0.9?1:0;D.lean=D.t>0.9?D.side*0.25:0}else if(k==='frog'){D.reach=D.t>0.5?1:0;D.lean=D.side*Math.min(0.35,D.t*0.3)}
     else if(k==='turn'){D.lean=D.side*Math.min(0.55,D.t*0.45)+Math.sin(D.t*18)*0.08}else if(k==='sneeze'){D.sneeze=D.t>1.2?clamp((D.t-1.2)*3,0,1):0;D.lean=D.t>1.2?D.side*0.3:-0.05*Math.sin(D.t*8)}
-    if(D.t>dur){D.st='fly';D.t=0;const b=boat;D.x=b.x+Math.sin(b.ang)*-34;D.y=b.y+34;D.tx=b.x+D.side*78;D.ty=b.y-50;boat.vx-=D.side*50;shake=0.2;AUD.SFX.whoosh();if(k==='hat')geese.forEach(g=>{if(g.kind==='hat'){g.vx=D.side*240;g.vy=-180}})}}
-  else if(D.st==='fly'){const k=Math.min(1,D.t/0.6);D.h=Math.sin(k*Math.PI)*40;const fx=lerp(D.x,D.tx,k),fy=lerp(D.y,D.ty,k);D.fx=fx;D.fy=fy;
-    if(k>=1){D.st='water';D.t=0;D.x=D.tx;D.y=D.ty;D.soggy=Math.min(3,D.soggy+1);lvStats.dunks++;run.dunks++;AUD.SFX.splash();shake=0.4;splash(D.x,D.y,26,140);ring(D.x,D.y,6,50,0.8);ring(D.x,D.y,6,80,1.1);
+    if(D.t>dur){D.st='fly';D.t=0;const b=boat;D.x=b.x+Math.sin(b.ang)*-34;D.y=b.y+34;boat.vx-=D.side*50;shake=0.2;AUD.SFX.whoosh();if(k==='hat')geese.forEach(g=>{if(g.kind==='hat'){g.vx=D.side*240;g.vy=-180}})}}
+  else if(D.st==='fly'){// lands AHEAD of and beside the canoe (target follows the canoe so he never ends up behind it)
+    const k=Math.min(1,D.t/0.6);D.h=Math.sin(k*Math.PI)*40;const p=dadSpot(D.side);D.tx=p.x;D.ty=p.y;const fx=lerp(D.x,D.tx,ease(k)),fy=lerp(D.y,D.ty,ease(k));D.fx=fx;D.fy=fy;
+    if(k>=1){D.st='water';D.t=0;D.x=D.tx;D.y=D.ty;D.ph=R()*6;D.soggy=Math.min(3,D.soggy+1);lvStats.dunks++;run.dunks++;AUD.SFX.splash();shake=0.4;splash(D.x,D.y,26,140);ring(D.x,D.y,6,50,0.8);ring(D.x,D.y,6,80,1.1);
       floatTxt('SPLOOSH!',D.x,D.y-30,'#e1f5fe',24);setTimeout(()=>{if(dad.st==='water')say('dadhelp',2)},900);if(D.frog)D.frog.hop=1}}
-  else if(D.st==='water'){if(R()<dt*2)AUD.SFX.sputter();const cur=L.arena&&D.y<L.arena.y0?0:L.cur;const dx=boat.x-D.x,dy=boat.y-D.y,d=Math.hypot(dx,dy)||1;const far=dy<-480;
-    const sw=far?170:7;D.x+=dx/d*sw*dt;D.y+=(-cur+dy/d*sw)*dt;const c=riverC(D.y),hw=riverHW(D.y)-14;D.x=clamp(D.x,c-hw,c+hw);
-    if(canoeCircles().some(q=>dist2(q.x,q.y,D.x,D.y)<(q.r+20)**2)){D.st='climb';D.t=0;D.cx=D.x;D.cy=D.y;AUD.SFX.scoop();score+=50;floatTxt('GOT DAD! +50',D.x,D.y-24,'#b2ff59',16);boat.s*=0.4;say('gotdad',2)}}
+  else if(D.st==='water'){if(R()<dt*2)AUD.SFX.sputter();const cur=curNow(D.y);D.ph+=dt;
+    // drift gently with the (slowed) current, bobbing side to side; stay on screen ahead of / beside the canoe, never behind it
+    D.y-=cur*dt;D.x+=Math.sin(D.ph*1.3)*14*dt;const ahead=boat.y-D.y,maxA=Math.min(300,camBase()-70);
+    if(ahead<25)D.y=approach(D.y,boat.y-25,Math.max(60,boat.s+40)*dt);else if(ahead>maxA)D.y=approach(D.y,boat.y-maxA,(ahead-maxA+40)*dt*2);
+    if(L.arena&&boat.y<L.arena.y0+200)D.y=Math.max(D.y,L.arena.y1+70);
+    // after ~10s Dad doggy-paddles over and grabs the canoe himself (never a softlock)
+    if(D.t>10){if(!D.self){D.self=1;say('dadswim',3);floatTxt('Doggy paddle!',D.x,D.y-26,'#fff',14)}const dx=boat.x-D.x,dy=boat.y-D.y,d=Math.hypot(dx,dy)||1;D.x+=dx/d*150*dt;D.y+=dy/d*150*dt}
+    const c=riverC(D.y),hw=(L.arena&&D.y<L.arena.y0?L.arena.hw:riverHW(D.y))-16;D.x=clamp(D.x,c-hw,c+hw);
+    if(canoeCircles().some(q=>dist2(q.x,q.y,D.x,D.y)<(q.r+DAD_GRAB)**2)){D.st='climb';D.t=0;D.cx=D.x;D.cy=D.y;AUD.SFX.scoop();if(!D.self){score+=50;floatTxt('GOT DAD! +50',D.x,D.y-24,'#b2ff59',16);say('gotdad',2)}else floatTxt('Dad grabbed on!',D.x,D.y-24,'#b2ff59',15);D.self=0;boat.s*=0.4}}
   else if(D.st==='climb'){if(D.t>0.75){D.st='boat';D.t=0;D.lean=0;boat.cheer=0.8;const ln=D.soggy===2?'dadfish':D.soggy===3?'dadpad':'dadsaved';setTimeout(()=>say(ln,2),1300);splash(boat.x,boat.y+30,10,50,'rgba(150,200,255,0.9)')}}
   if(D.frog&&D.frog.hop){D.frog.hop+=dt;if(D.frog.hop>2.2)D.frog=null}
   if(D.soggy&&D.st==='boat'&&R()<dt*D.soggy*3)parts.push({x:boat.x+rr(-6,6),y:boat.y+30+rr(-4,4),vx:0,vy:rr(10,30),life:0,max:0.5,sz:1.8,col:'rgba(120,180,255,0.9)',k:'drop',g:60})}
 function dadOut(){return dad.st==='water'||dad.st==='fly'}
+const DAD_GRAB=40;// generous pickup radius around the canoe
+function dadSpot(side){const c=riverC(boat.y-110),hw=riverHW(boat.y-110)-30;return {x:clamp(boat.x+side*72,c-hw,c+hw),y:boat.y-110}}
+// current is halved while Dad is swimming so the rescue is calm even in the rapids
+function curNow(y){return (L.arena&&y<L.arena.y0+60?0:L.cur)*(dadOut()?0.5:1)}
 // ---------- checkpoints / tunnels / finish ----------
 function stepMarkers(dt){for(const c of L.checks)if(!c.hit&&boat.y<c.y){c.hit=1;checkpoint={y:c.y-20,x:c.x};AUD.SFX.check();say('check',2);showBanner('CHECKPOINT!','#ff8a80',1.5);if(hearts<MAXH){hearts=MAXH;floatTxt('Hearts refilled!',boat.x,boat.y-60,'#ff8a80',14)}}
   const tn=inTunnel(boat.y-60);if(tn&&!tn.said){tn.said=1;say('tunnel',2)}

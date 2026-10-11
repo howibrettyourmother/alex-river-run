@@ -64,7 +64,7 @@ function drawTitle(){dim(0.2);const W=VW,narrow=W<600,cx=W/2;UI=[];
     const s=canoeSpr(C.id);X.save();X.translate(x,cy);X.rotate(Math.PI/2);X.globalAlpha=own?1:0.35;X.drawImage(s.c,-s.w*0.22,-s.h*0.22,s.w*0.44,s.h*0.44);X.restore();X.globalAlpha=1;if(!own)txt('\uD83D\uDD12',x,cy,16,'#fff',{sw:0});btn('cn'+i,x-26,cy-26,52,52)});
   txt(narrow?'':'CANOES',cx0+87,cy-34,10,'#fff',{sw:3});
   const ry=narrow?VH-44:VH-48,rx=narrow?cx:W-10-insR();
-  const sl=steerMode==='canoe'?'STEER: REAL CANOE':'STEER: ARROWS';
+  const sl=steerMode==='canoe'?'REAL PADDLING: ON':'REAL PADDLING: OFF';
   if(narrow){bigBtn('steer',sl,cx-78,ry,150,38,'#4fc3f7','#1e88e5',11);bigBtn('records','\uD83C\uDFC6 RECORDS',cx+86,ry,130,38,'#ffd54f','#ff8f00',12)}
   else{bigBtn('steer',sl,rx-235,ry,170,40,'#4fc3f7','#1e88e5',12);bigBtn('records','\uD83C\uDFC6 RECORDS',rx-70,ry,136,40,'#ffd54f','#ff8f00',13)}
   roundIcon('mute',W-10-insR()-20,26,18,muteIcon);txt('v'+VERSION,W-10-insR()-20,52,8,'rgba(255,255,255,0.6)',{sw:0});
@@ -77,7 +77,7 @@ function drawRecords(){dim(0.55);UI=[];const w=Math.min(560,VW-30),x=panel(w,VH-
   board.slice(0,5).forEach((e,i)=>{const yy=98+i*22;txt((i+1)+'.',x+w*0.53,yy,11,'#c0392b',{a:'left',sw:0});txt(e.score+' pts',x+w*0.58,yy,11,'#1d3b4a',{a:'left',sw:0});txt(fmtT(e.time),x+w*0.8,yy,10,'#1e6aa5',{sw:0});drawBear(x+w*0.9,yy,0,0,0.55);txt(''+e.bears,x+w*0.95,yy,10,'#b5521c',{sw:0})});
   txt('Lifetime woolly bears saved: '+lifeBears+'   \u2022   Rubber ducks: '+ducksFound.length+'/5',VW/2,226,12,'#1d3b4a',{sw:0});
   bigBtn('back','BACK',VW/2,VH-56,150,44,'#7cff6b','#2fa84a')}
-const TIPS=['Tap LEFT and RIGHT in turn to go fast! Paddle on one side to turn the other way.','Twisty river! Lean into the turns, and wave to the turtles.','Burping fish push you around. Scoop woolly bears off the leaves!','Beaver dams: find the gap! Watch out for geese.','Fast water! Dodge the rocks, then cheer up a grumpy turtle.'];
+const TIPS=['Tap LEFT and RIGHT in turn to go fast! Hold one to steer that way.','Twisty river! Lean into the turns, and wave to the turtles.','Burping fish push you around. Scoop woolly bears off the leaves!','Beaver dams: find the gap! Watch out for geese.','Fast water! Dodge the rocks, then cheer up a grumpy turtle.'];
 function drawCard(){const t=card.t;dim(Math.min(0.45,t));const w=Math.min(470,VW-30),y=VH/2-104;X.save();X.translate(VW/2,y+104);const s=easeB(Math.min(1,t*2.5));X.scale(s,s);X.translate(-VW/2,-y-104);
   const x=panel(w,208,y);txt('LEVEL '+(lvI+1),VW/2,y+30,16,'#e8762b',{sw:0});txt(L.D.name,VW/2,y+64,30,'#fff',{st:'#1e6aa5',sw:7});txt(L.D.sub,VW/2,y+96,13,'#1d3b4a',{sw:0});
   const tip=TIPS[lvI],words=tip.split(' ');let l1='',l2='';for(const wd of words){if((l1+' '+wd).length<46&&!l2)l1+=(l1?' ':'')+wd;else l2+=(l2?' ':'')+wd}txt(l1,VW/2,y+124,11.5,'#5a4a3a',{sw:0});txt(l2,VW/2,y+142,11.5,'#5a4a3a',{sw:0});
@@ -86,7 +86,7 @@ function drawCard(){const t=card.t;dim(Math.min(0.45,t));const w=Math.min(470,VW
 function drawOops(){dim(Math.min(0.5,stT));const y=VH/2-70,w=320;panel(w,130,y);txt('Oopsie!',VW/2,y+34,30,'#fff',{st:'#c0392b',sw:7});txt('Back to the buoy \u2014 hearts refilled!',VW/2,y+72,13,'#5a3a1a',{sw:0});
   for(let i=0;i<MAXH;i++){const on=stT>0.4+i*0.3;heart(VW/2+(i-1)*34,y+104,on?15:11,on?'#ff4d6d':'#e8c8a8')}}
 function drawPaused(){dim(0.55);UI=[];const y=VH/2-120;panel(300,240,y);txt('PAUSED',VW/2,y+32,26,'#fff',{st:'#1e6aa5',sw:6});bigBtn('resume','PADDLE ON!',VW/2,y+86,210,50,'#7cff6b','#2fa84a');
-  bigBtn('steer',steerMode==='canoe'?'STEER: REAL CANOE':'STEER: ARROWS',VW/2,y+146,210,38,'#4fc3f7','#1e88e5',12);bigBtn('home','HOME',VW/2,y+200,150,40,'#ffd54f','#ff8f00')}
+  bigBtn('steer',steerMode==='canoe'?'REAL PADDLING: ON':'REAL PADDLING: OFF',VW/2,y+146,210,38,'#4fc3f7','#1e88e5',12);bigBtn('home','HOME',VW/2,y+200,150,40,'#ffd54f','#ff8f00')}
 function drawClear(){const t=stT,ci=clearInfo;dim(Math.min(0.4,t*0.5));UI=[];const w=Math.min(440,VW-30),y=VH/2-128;X.save();const s=easeB(Math.min(1,t*2));X.translate(VW/2,y+128);X.scale(s,s);X.translate(-VW/2,-y-128);
   panel(w,256,y);txt('LEVEL CLEAR!',VW/2,y+32,28,'#fff',{st:'#2fa84a',sw:7});for(let i=0;i<3;i++){const on=t>0.5+i*0.3&&i<ci.stars;star(VW/2+(i-1)*44,y+70,on?17:13,on?'#ffd23f':'#e8d8c0')}
   const n=L.bearsTotal,bx0=VW/2-(n-1)*13;for(let i=0;i<n;i++){const ok=i<bearsLv;X.globalAlpha=ok?1:0.25;drawBear(bx0+i*26,y+104,0,T*6+i,ok?1:0.9);X.globalAlpha=1}
@@ -119,7 +119,7 @@ function finish(){if(state==='end')return;LS.set('beat',1);const nb=!bestT[lvI]|
   endStats={bears:run.bears,bearsTotal:run.bearsTotal,time:run.time,score:run.score,acorns:run.acorns,dunks:run.dunks,ducks:run.ducks,bonks:run.bonks,unlocks:newUnlocks.slice(),full:runFull,rank};newUnlocks=[];
   state='end';stT=0;clearInput();AUD.setTheme('win');AUD.SFX.fanfare();setTimeout(()=>AUD.SFX.cheer(),600);say('did',3);fwT=0}
 function toTitle(){clearInput();state='title';stT=0;paused=false;boss=null;demo=null;AUD.setTheme('title');parts=[];floats=[];banner=null;smear=[]}
-function setSteer(){steerMode=steerMode==='canoe'?'arrow':'canoe';LS.set('steer',steerMode);AUD.SFX.click()}
+function setSteer(){steerMode=steerMode==='canoe'?'arrow':'canoe';LS.set('steer2',steerMode);AUD.SFX.click()}
 function uiKey(k){if(k==='pause'){if(state==='play'){paused=!paused;clearInput();AUD.SFX.click()}return}
   if(paused){paused=false;clearInput();return}
   if(state==='title'){AUD.SFX.click();newRun(0)}else if(state==='card'&&card.t>0.4)startPlay();else if(state==='clear'&&stT>1.5)nextLevel();else if(state==='end'&&stT>1.5)newRun(0);else if(state==='records')state='title'}
@@ -217,7 +217,7 @@ AUD.setTheme('title');requestAnimationFrame(frame);
 if(DEBUG)window.__A={get state(){return state},set state(v){state=v},get boat(){return boat},get dad(){return dad},get L(){return L},get hearts(){return hearts},set hearts(v){hearts=v},get score(){return score},get bearsLv(){return bearsLv},get carry(){return carry.length},
   get boss(){return boss},get lv(){return lvI},get run(){return run},get paused(){return paused},get stT(){return stT},set stT(v){stT=v},get card(){return card},get endStats(){return endStats},get clearInfo(){return clearInfo},get inv(){return inv},set inv(v){inv=v},
   get inp(){return {l:inp.l,r:inp.r}},get nptrs(){return ptrs.size},get pressQ(){return pressQ.length},get cov(){return cov},get fps(){return fps},get work(){return work},get workMax(){return workMax},resetPerf(){workMax=0},get ema(){return ema},get dprCap(){return dprCap},get DPR(){return DPR},get smear(){return smear.length},get geese(){return geese.length},get flowerCarry(){return flowerCarry},
-  get canoes(){return canoesOwned},get canoeSel(){return canoeSel},get steer(){return steerMode},get board(){return board},get bestT(){return bestT},get unlockLv(){return unlockLv},set unlockLv(v){unlockLv=v},get ducks(){return ducksFound},get lvTime(){return lvTime},get AP(){return AP.mode},
+  get canoes(){return canoesOwned},get canoeSel(){return canoeSel},get steer(){return steerMode},steerSet(v){steerMode=v},get board(){return board},get bestT(){return bestT},get unlockLv(){return unlockLv},set unlockLv(v){unlockLv=v},get ducks(){return ducksFound},get lvTime(){return lvTime},get AP(){return AP.mode},
   audio:AUD,newRun,startPlay,startLevel,finish,set TS(v){TS=v},get TS(){return TS},bot(on){bot.on=on;bot.l=bot.r=0;syncInp()},
   tele(y,x){boat.y=y;boat.x=x==null?riverC(y):x;boat.vx=0;boat.s=0;camUpdate(0,true)},spawnGoose(){spawnGoose(false)},dunk(k){dad.st='wind';dad.k=k;dad.t=0;dad.side=R()<0.5?-1:1;if(k==='sneeze'){say('dadsneeze',3);setTimeout(()=>AUD.SFX.sneeze(),700)}},
   toClient:(x,y)=>({x:x*SC+OX,y:y*SC+OY}),ctl,ctlRects,get VW(){return VW},get VH(){return VH},get portrait(){return portrait},get ui(){return UI.map(b=>({id:b.id,x:b.x+b.w/2,y:b.y+b.h/2}))},get hud(){return HUDB.map(b=>({id:b.id,x:b.x+b.w/2,y:b.y+b.h/2}))},

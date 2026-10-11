@@ -31,7 +31,7 @@ async def run(b,name,full):
     async def U():return {u['id']:u for u in await E('__A.ui')}
     async def tapL(id):
         u=await U();cc=await E(f'__A.toClient({u[id]["x"]},{u[id]["y"]})');await m.touchscreen.tap(cc['x'],cc['y']);await W(260)
-    await tapL('steer');s1=await E('__A.steer');await tapL('steer');chk(f'[{name}] steering toggle (real canoe <-> arrows)',s1=='arrow' and await E('__A.steer')=='canoe')
+    await tapL('steer');s1=await E('__A.steer');await tapL('steer');chk(f'[{name}] "Real paddling" toggle (default OFF = arrows), ON <-> OFF',s1=='canoe' and await E('__A.steer')=='arrow')
     await tapL('lv3');chk(f'[{name}] locked level stays locked',await E('__A.state')=='title')
     await tapL('cn1');chk(f'[{name}] locked canoe not selectable',await E('__A.canoeSel')=='silver')
     await tapL('records');chk(f'[{name}] records screen',await E('__A.state')=='records')
@@ -42,11 +42,18 @@ async def run(b,name,full):
     await m.touchscreen.tap(vp[0]*0.5,vp[1]*0.4);await W(300);chk(f'[{name}] tap card -> paddling',await E('__A.state')=='play')
     await E('__A.inv=99;__A.tele(-700)');await W(100)
     L=(c['L']['x'],c['L']['y']);R=(c['R']['x'],c['R']['y'])
-    # --- touch: hold LEFT paddle -> canoe veers right (real canoe steering)
+    # --- touch: hold LEFT -> canoe steers LEFT, hold RIGHT -> steers RIGHT (intuitive default)
     x0=await E('__A.boat.x');await touch(cdp,'touchStart',[(0,L)]);await W(150);i1=await E('__A.inp');await W(500)
     x1=await E('__A.boat.x');await touch(cdp,'touchEnd',[]);await W(80);i2=await E('__A.inp')
-    chk(f'[{name}] touch LEFT paddle: pressed while held, released after',i1['l']==1 and i1['r']==0 and i2['l']==0 and i2['r']==0,f'{i1} {i2}')
-    chk(f'[{name}] paddling on the left steers the canoe right',x1-x0>12,f'{x0:.0f}->{x1:.0f}')
+    chk(f'[{name}] touch LEFT button: pressed while held, released after',i1['l']==1 and i1['r']==0 and i2['l']==0 and i2['r']==0,f'{i1} {i2}')
+    chk(f'[{name}] LEFT button steers the canoe left',x1-x0<-12,f'{x0:.0f}->{x1:.0f}')
+    await E('__A.inv=99;__A.tele(-700)');await W(100)
+    x0=await E('__A.boat.x');await touch(cdp,'touchStart',[(0,R)]);await W(650);x1=await E('__A.boat.x');await touch(cdp,'touchEnd',[]);await W(80)
+    chk(f'[{name}] RIGHT button steers the canoe right',x1-x0>12,f'{x0:.0f}->{x1:.0f}')
+    await E('__A.tele(-700)');await W(100);x0=await E('__A.boat.x');await m.keyboard.down('ArrowRight');await W(650);await m.keyboard.up('ArrowRight');x1=await E('__A.boat.x')
+    chk(f'[{name}] keyboard Right arrow steers right',x1-x0>12,f'{x0:.0f}->{x1:.0f}')
+    await E('__A.steerSet("canoe");__A.tele(-700)');await W(100);x0=await E('__A.boat.x');await touch(cdp,'touchStart',[(0,L)]);await W(650);x1=await E('__A.boat.x');await touch(cdp,'touchEnd',[]);await W(80);await E('__A.steerSet("arrow");__A.tele(-700)')
+    chk(f'[{name}] Real paddling ON: LEFT paddle turns the canoe right',x1-x0>12,f'{x0:.0f}->{x1:.0f}')
     # --- alternating rhythm builds speed
     await E('__A.boat.s=0');sides=[L,R]
     for k in range(10):

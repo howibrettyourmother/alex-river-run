@@ -4,13 +4,17 @@ const DEBUG=/[?&]debug=1/.test(location.search),ICONMODE=/[?&]icon=1/.test(locat
 const VERSION='1.0.0',FONT='"Arial Rounded MT Bold","Fredoka","Baloo 2","Trebuchet MS",system-ui,sans-serif';
 let SW=0,SH=0,DPR=1,SC=1,VW=640,VH=400,OX=0,OY=0,portrait=false,INS={l:0,r:0,t:0,b:0},dprCap=2,CTL=null;
 const insEl=document.createElement('div');insEl.style.cssText='position:fixed;left:0;top:0;width:0;height:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);visibility:hidden;pointer-events:none';document.body.appendChild(insEl);
-function resize(){SW=innerWidth;SH=innerHeight;DPR=Math.min(devicePixelRatio||1,dprCap);
+function resize(){const vv=window.visualViewport;SW=Math.round(vv&&vv.width||innerWidth);SH=Math.round(vv&&vv.height||innerHeight);if(vv&&vv.scale>1.01){SW=innerWidth;SH=innerHeight}DPR=Math.min(devicePixelRatio||1,dprCap);
   const cs=getComputedStyle(insEl);INS={t:parseFloat(cs.paddingTop)||0,r:parseFloat(cs.paddingRight)||0,b:parseFloat(cs.paddingBottom)||0,l:parseFloat(cs.paddingLeft)||0};
   portrait=SH>SW*1.1;
   if(!portrait){VH=Math.max(400,Math.round(640*SH/SW));SC=SH/VH;VW=SW/SC;OX=0;OY=0}
   else{VW=420;VH=400;SC=SW/VW;OX=0;OY=Math.round(Math.max(INS.t+6,(SH-VH*SC)*0.22))}
   cv.width=Math.round(SW*DPR);cv.height=Math.round(SH*DPR);cv.style.width=SW+'px';cv.style.height=SH+'px';CTL=null}
-addEventListener('resize',resize);addEventListener('orientationchange',()=>setTimeout(resize,200));resize();
+addEventListener('resize',resize);addEventListener('orientationchange',()=>{clearInput&&clearInput();[100,300,700].forEach(d=>setTimeout(resize,d))});if(window.visualViewport){visualViewport.addEventListener('resize',resize);visualViewport.addEventListener('scroll',()=>{if(scrollY)scrollTo(0,0)})}resize();
+// mobile Safari: no pinch/double-tap zoom, no pull-to-refresh, no long-press selection/callout
+['gesturestart','gesturechange','gestureend','dblclick','selectstart'].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
+document.addEventListener('touchmove',e=>{if(e.cancelable)e.preventDefault()},{passive:false});
+let lastTE=0;document.addEventListener('touchend',e=>{const n=Date.now();if(n-lastTE<350&&e.cancelable&&e.target!==cv)e.preventDefault();lastTE=n},{passive:false});
 const R=Math.random,rr=(a,b)=>a+R()*(b-a),pick=a=>a[(R()*a.length)|0],clamp=(v,a,b)=>v<a?a:v>b?b:v,lerp=(a,b,t)=>a+(b-a)*t,TAU=Math.PI*2;
 const ease=t=>t<0?0:t>1?1:1-Math.pow(1-t,3),easeB=t=>{t=clamp(t,0,1);const c=1.70158;return 1+(c+1)*Math.pow(t-1,3)+c*Math.pow(t-1,2)};
 let seed=1;const srand=()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646},srr=(a,b)=>a+srand()*(b-a),spick=a=>a[(srand()*a.length)|0];
@@ -19,7 +23,7 @@ const dist2=(ax,ay,bx,by)=>(ax-bx)*(ax-bx)+(ay-by)*(ay-by);
 // ---------- persistent prefs (all local) ----------
 const LS={get(k,d){try{const v=localStorage.getItem('arr_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('arr_'+k,JSON.stringify(v))}catch(e){}}};
 const CANOES=[{id:'silver',name:'Silver Canoe',need:'Ready to go!'},{id:'rocket',name:'Rocket Canoe',need:'Clear Willow Bend'},{id:'pirate',name:'Pirate Canoe',need:'Find 3 rubber ducks'},{id:'hotdog',name:'Hot Dog Canoe',need:'Make the turtle happy'}];
-let unlockLv=LS.get('unlock',1),bestT=LS.get('best',{}),canoesOwned=LS.get('canoes',['silver']),canoeSel=LS.get('canoe','silver'),ducksFound=LS.get('ducks',[]),steerMode=LS.get('steer','canoe'),board=LS.get('board',[]),lifeBears=LS.get('bears',0);
+let unlockLv=LS.get('unlock',1),bestT=LS.get('best',{}),canoesOwned=LS.get('canoes',['silver']),canoeSel=LS.get('canoe','silver'),ducksFound=LS.get('ducks',[]),steerMode=LS.get('steer2','arrow'),board=LS.get('board',[]),lifeBears=LS.get('bears',0);
 if(!canoesOwned.includes(canoeSel))canoeSel='silver';
 // ---------- on-screen controls layout (CSS px) ----------
 // Landscape: big round paddle buttons on the river banks (side mode) when the bank is wide enough (iPhone),

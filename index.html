@@ -17,7 +17,7 @@
 <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="manifest" href="manifest.json?v=1.0.0">
-<style>html,body{margin:0;height:100%;overflow:hidden;background:#12302a;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+<style>html,body{margin:0;height:100%;height:100dvh;width:100%;overflow:hidden;position:fixed;inset:0;-webkit-text-size-adjust:100%;background:#12302a;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
 canvas{display:block;position:fixed;left:0;top:0;touch-action:none}</style></head><body>
 <canvas id="c"></canvas>
 <script>
@@ -163,13 +163,17 @@ const DEBUG=/[?&]debug=1/.test(location.search),ICONMODE=/[?&]icon=1/.test(locat
 const VERSION='1.0.0',FONT='"Arial Rounded MT Bold","Fredoka","Baloo 2","Trebuchet MS",system-ui,sans-serif';
 let SW=0,SH=0,DPR=1,SC=1,VW=640,VH=400,OX=0,OY=0,portrait=false,INS={l:0,r:0,t:0,b:0},dprCap=2,CTL=null;
 const insEl=document.createElement('div');insEl.style.cssText='position:fixed;left:0;top:0;width:0;height:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);visibility:hidden;pointer-events:none';document.body.appendChild(insEl);
-function resize(){SW=innerWidth;SH=innerHeight;DPR=Math.min(devicePixelRatio||1,dprCap);
+function resize(){const vv=window.visualViewport;SW=Math.round(vv&&vv.width||innerWidth);SH=Math.round(vv&&vv.height||innerHeight);if(vv&&vv.scale>1.01){SW=innerWidth;SH=innerHeight}DPR=Math.min(devicePixelRatio||1,dprCap);
   const cs=getComputedStyle(insEl);INS={t:parseFloat(cs.paddingTop)||0,r:parseFloat(cs.paddingRight)||0,b:parseFloat(cs.paddingBottom)||0,l:parseFloat(cs.paddingLeft)||0};
   portrait=SH>SW*1.1;
   if(!portrait){VH=Math.max(400,Math.round(640*SH/SW));SC=SH/VH;VW=SW/SC;OX=0;OY=0}
   else{VW=420;VH=400;SC=SW/VW;OX=0;OY=Math.round(Math.max(INS.t+6,(SH-VH*SC)*0.22))}
   cv.width=Math.round(SW*DPR);cv.height=Math.round(SH*DPR);cv.style.width=SW+'px';cv.style.height=SH+'px';CTL=null}
-addEventListener('resize',resize);addEventListener('orientationchange',()=>setTimeout(resize,200));resize();
+addEventListener('resize',resize);addEventListener('orientationchange',()=>{clearInput&&clearInput();[100,300,700].forEach(d=>setTimeout(resize,d))});if(window.visualViewport){visualViewport.addEventListener('resize',resize);visualViewport.addEventListener('scroll',()=>{if(scrollY)scrollTo(0,0)})}resize();
+// mobile Safari: no pinch/double-tap zoom, no pull-to-refresh, no long-press selection/callout
+['gesturestart','gesturechange','gestureend','dblclick','selectstart'].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
+document.addEventListener('touchmove',e=>{if(e.cancelable)e.preventDefault()},{passive:false});
+let lastTE=0;document.addEventListener('touchend',e=>{const n=Date.now();if(n-lastTE<350&&e.cancelable&&e.target!==cv)e.preventDefault();lastTE=n},{passive:false});
 const R=Math.random,rr=(a,b)=>a+R()*(b-a),pick=a=>a[(R()*a.length)|0],clamp=(v,a,b)=>v<a?a:v>b?b:v,lerp=(a,b,t)=>a+(b-a)*t,TAU=Math.PI*2;
 const ease=t=>t<0?0:t>1?1:1-Math.pow(1-t,3),easeB=t=>{t=clamp(t,0,1);const c=1.70158;return 1+(c+1)*Math.pow(t-1,3)+c*Math.pow(t-1,2)};
 let seed=1;const srand=()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646},srr=(a,b)=>a+srand()*(b-a),spick=a=>a[(srand()*a.length)|0];
@@ -178,7 +182,7 @@ const dist2=(ax,ay,bx,by)=>(ax-bx)*(ax-bx)+(ay-by)*(ay-by);
 // ---------- persistent prefs (all local) ----------
 const LS={get(k,d){try{const v=localStorage.getItem('arr_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('arr_'+k,JSON.stringify(v))}catch(e){}}};
 const CANOES=[{id:'silver',name:'Silver Canoe',need:'Ready to go!'},{id:'rocket',name:'Rocket Canoe',need:'Clear Willow Bend'},{id:'pirate',name:'Pirate Canoe',need:'Find 3 rubber ducks'},{id:'hotdog',name:'Hot Dog Canoe',need:'Make the turtle happy'}];
-let unlockLv=LS.get('unlock',1),bestT=LS.get('best',{}),canoesOwned=LS.get('canoes',['silver']),canoeSel=LS.get('canoe','silver'),ducksFound=LS.get('ducks',[]),steerMode=LS.get('steer','canoe'),board=LS.get('board',[]),lifeBears=LS.get('bears',0);
+let unlockLv=LS.get('unlock',1),bestT=LS.get('best',{}),canoesOwned=LS.get('canoes',['silver']),canoeSel=LS.get('canoe','silver'),ducksFound=LS.get('ducks',[]),steerMode=LS.get('steer2','arrow'),board=LS.get('board',[]),lifeBears=LS.get('bears',0);
 if(!canoesOwned.includes(canoeSel))canoeSel='silver';
 // ---------- on-screen controls layout (CSS px) ----------
 // Landscape: big round paddle buttons on the river banks (side mode) when the bank is wide enough (iPhone),
@@ -554,7 +558,7 @@ function stepBoat(dt){const both=inp.l&&inp.r;
   if(T-boat.lastStroke>1.1&&boat.rhythm>0){boat.rhythm--;boat.lastStroke=T-0.6}
   boat.s-=boat.s*0.42*dt;boat.vx*=Math.exp(-1.9*dt);boat.vx=clamp(boat.vx,-160,160);
   boat.ph=Math.min(1,boat.ph+dt/0.45);boat.dph=Math.min(1,boat.dph+dt/0.45);
-  const cur=L.arena&&boat.y<L.arena.y0+60?0:L.cur;
+  const cur=curNow(boat.y);
   boat.y-=(boat.s+cur)*dt;boat.x+=boat.vx*dt;
   // banks (soft bounce, no damage)
   const c=riverC(boat.y),hw=(L.arena&&boat.y<L.arena.y0?L.arena.hw:riverHW(boat.y))-15;
@@ -627,17 +631,28 @@ function stepDad(dt){dad.t+=dt;const D=dad;
   else if(D.st==='wind'){const k=D.k,dur=k==='sneeze'?1.85:k==='hat'?1.7:1.5;
     if(k==='hat'){D.reach=D.t>0.9?1:0;D.lean=D.t>0.9?D.side*0.25:0}else if(k==='frog'){D.reach=D.t>0.5?1:0;D.lean=D.side*Math.min(0.35,D.t*0.3)}
     else if(k==='turn'){D.lean=D.side*Math.min(0.55,D.t*0.45)+Math.sin(D.t*18)*0.08}else if(k==='sneeze'){D.sneeze=D.t>1.2?clamp((D.t-1.2)*3,0,1):0;D.lean=D.t>1.2?D.side*0.3:-0.05*Math.sin(D.t*8)}
-    if(D.t>dur){D.st='fly';D.t=0;const b=boat;D.x=b.x+Math.sin(b.ang)*-34;D.y=b.y+34;D.tx=b.x+D.side*78;D.ty=b.y-50;boat.vx-=D.side*50;shake=0.2;AUD.SFX.whoosh();if(k==='hat')geese.forEach(g=>{if(g.kind==='hat'){g.vx=D.side*240;g.vy=-180}})}}
-  else if(D.st==='fly'){const k=Math.min(1,D.t/0.6);D.h=Math.sin(k*Math.PI)*40;const fx=lerp(D.x,D.tx,k),fy=lerp(D.y,D.ty,k);D.fx=fx;D.fy=fy;
-    if(k>=1){D.st='water';D.t=0;D.x=D.tx;D.y=D.ty;D.soggy=Math.min(3,D.soggy+1);lvStats.dunks++;run.dunks++;AUD.SFX.splash();shake=0.4;splash(D.x,D.y,26,140);ring(D.x,D.y,6,50,0.8);ring(D.x,D.y,6,80,1.1);
+    if(D.t>dur){D.st='fly';D.t=0;const b=boat;D.x=b.x+Math.sin(b.ang)*-34;D.y=b.y+34;boat.vx-=D.side*50;shake=0.2;AUD.SFX.whoosh();if(k==='hat')geese.forEach(g=>{if(g.kind==='hat'){g.vx=D.side*240;g.vy=-180}})}}
+  else if(D.st==='fly'){// lands AHEAD of and beside the canoe (target follows the canoe so he never ends up behind it)
+    const k=Math.min(1,D.t/0.6);D.h=Math.sin(k*Math.PI)*40;const p=dadSpot(D.side);D.tx=p.x;D.ty=p.y;const fx=lerp(D.x,D.tx,ease(k)),fy=lerp(D.y,D.ty,ease(k));D.fx=fx;D.fy=fy;
+    if(k>=1){D.st='water';D.t=0;D.x=D.tx;D.y=D.ty;D.ph=R()*6;D.soggy=Math.min(3,D.soggy+1);lvStats.dunks++;run.dunks++;AUD.SFX.splash();shake=0.4;splash(D.x,D.y,26,140);ring(D.x,D.y,6,50,0.8);ring(D.x,D.y,6,80,1.1);
       floatTxt('SPLOOSH!',D.x,D.y-30,'#e1f5fe',24);setTimeout(()=>{if(dad.st==='water')say('dadhelp',2)},900);if(D.frog)D.frog.hop=1}}
-  else if(D.st==='water'){if(R()<dt*2)AUD.SFX.sputter();const cur=L.arena&&D.y<L.arena.y0?0:L.cur;const dx=boat.x-D.x,dy=boat.y-D.y,d=Math.hypot(dx,dy)||1;const far=dy<-480;
-    const sw=far?170:7;D.x+=dx/d*sw*dt;D.y+=(-cur+dy/d*sw)*dt;const c=riverC(D.y),hw=riverHW(D.y)-14;D.x=clamp(D.x,c-hw,c+hw);
-    if(canoeCircles().some(q=>dist2(q.x,q.y,D.x,D.y)<(q.r+20)**2)){D.st='climb';D.t=0;D.cx=D.x;D.cy=D.y;AUD.SFX.scoop();score+=50;floatTxt('GOT DAD! +50',D.x,D.y-24,'#b2ff59',16);boat.s*=0.4;say('gotdad',2)}}
+  else if(D.st==='water'){if(R()<dt*2)AUD.SFX.sputter();const cur=curNow(D.y);D.ph+=dt;
+    // drift gently with the (slowed) current, bobbing side to side; stay on screen ahead of / beside the canoe, never behind it
+    D.y-=cur*dt;D.x+=Math.sin(D.ph*1.3)*14*dt;const ahead=boat.y-D.y,maxA=Math.min(300,camBase()-70);
+    if(ahead<25)D.y=approach(D.y,boat.y-25,Math.max(60,boat.s+40)*dt);else if(ahead>maxA)D.y=approach(D.y,boat.y-maxA,(ahead-maxA+40)*dt*2);
+    if(L.arena&&boat.y<L.arena.y0+200)D.y=Math.max(D.y,L.arena.y1+70);
+    // after ~10s Dad doggy-paddles over and grabs the canoe himself (never a softlock)
+    if(D.t>10){if(!D.self){D.self=1;say('dadswim',3);floatTxt('Doggy paddle!',D.x,D.y-26,'#fff',14)}const dx=boat.x-D.x,dy=boat.y-D.y,d=Math.hypot(dx,dy)||1;D.x+=dx/d*150*dt;D.y+=dy/d*150*dt}
+    const c=riverC(D.y),hw=(L.arena&&D.y<L.arena.y0?L.arena.hw:riverHW(D.y))-16;D.x=clamp(D.x,c-hw,c+hw);
+    if(canoeCircles().some(q=>dist2(q.x,q.y,D.x,D.y)<(q.r+DAD_GRAB)**2)){D.st='climb';D.t=0;D.cx=D.x;D.cy=D.y;AUD.SFX.scoop();if(!D.self){score+=50;floatTxt('GOT DAD! +50',D.x,D.y-24,'#b2ff59',16);say('gotdad',2)}else floatTxt('Dad grabbed on!',D.x,D.y-24,'#b2ff59',15);D.self=0;boat.s*=0.4}}
   else if(D.st==='climb'){if(D.t>0.75){D.st='boat';D.t=0;D.lean=0;boat.cheer=0.8;const ln=D.soggy===2?'dadfish':D.soggy===3?'dadpad':'dadsaved';setTimeout(()=>say(ln,2),1300);splash(boat.x,boat.y+30,10,50,'rgba(150,200,255,0.9)')}}
   if(D.frog&&D.frog.hop){D.frog.hop+=dt;if(D.frog.hop>2.2)D.frog=null}
   if(D.soggy&&D.st==='boat'&&R()<dt*D.soggy*3)parts.push({x:boat.x+rr(-6,6),y:boat.y+30+rr(-4,4),vx:0,vy:rr(10,30),life:0,max:0.5,sz:1.8,col:'rgba(120,180,255,0.9)',k:'drop',g:60})}
 function dadOut(){return dad.st==='water'||dad.st==='fly'}
+const DAD_GRAB=40;// generous pickup radius around the canoe
+function dadSpot(side){const c=riverC(boat.y-110),hw=riverHW(boat.y-110)-30;return {x:clamp(boat.x+side*72,c-hw,c+hw),y:boat.y-110}}
+// current is halved while Dad is swimming so the rescue is calm even in the rapids
+function curNow(y){return (L.arena&&y<L.arena.y0+60?0:L.cur)*(dadOut()?0.5:1)}
 // ---------- checkpoints / tunnels / finish ----------
 function stepMarkers(dt){for(const c of L.checks)if(!c.hit&&boat.y<c.y){c.hit=1;checkpoint={y:c.y-20,x:c.x};AUD.SFX.check();say('check',2);showBanner('CHECKPOINT!','#ff8a80',1.5);if(hearts<MAXH){hearts=MAXH;floatTxt('Hearts refilled!',boat.x,boat.y-60,'#ff8a80',14)}}
   const tn=inTunnel(boat.y-60);if(tn&&!tn.said){tn.said=1;say('tunnel',2)}
@@ -678,7 +693,7 @@ function stepBoss(dt){const b=boss;if(!b)return;b.t+=dt;const A=L.arena,neck={x:
   if(b.st!=='happy'){const cs=canoeCircles();for(const c of cs){const d=Math.hypot(c.x-b.x,c.y-b.y);if(d<c.r+64){const nx=(c.x-b.x)/d,ny=(c.y-b.y)/d;boat.x+=nx*(c.r+64-d);boat.y+=ny*(c.r+64-d);bonk(nx,ny,'shell');break}}}}
 
 // ================= rendering: river world, characters, overlays =================
-let dk=null,dkx=null;// half-res darkness layer for tunnels (cheap on the A10)
+let dk=null;// cached half-res headlamp mask for tunnels (cheap on the A10)
 function vis(y,m){return y>camY-(m||80)&&y<camY+VH+(m||80)}
 function drawRiver(){const D=L.D,y0=camY-40,y1=camY+VH+40;X.fillStyle=D.bank;X.fillRect(camX-10,camY-10,VW+20,VH+20);
   // bank texture: soft patches + fallen leaves on the grass
@@ -748,17 +763,20 @@ function drawTunnelArches(){for(const t of L.tunnels){for(const y of [t.y0,t.y1]
     for(let x=Math.floor((camX-10)/22)*22;x<camX+VW+22;x+=22){X.fillStyle=((x/22)|0)%2?'#85817a':'#77736c';X.fillRect(x+1,y-15,20,14);X.fillRect(x+12,y+1,20,14)}
     X.fillStyle='rgba(10,10,20,0.55)';X.beginPath();X.ellipse(c,y+(y===t.y0?14:-14),hw*0.9,12,0,y===t.y0?0:Math.PI,y===t.y0?Math.PI:TAU);X.fill();
     if(y===t.y0&&boat.y>y)txt('TUNNEL',c,y,12,'#ffe9a0',{sw:3})}}}
+function headMask(){if(dk)return dk;const len=290,sp=0.46,S=len*2,k=0.5,c=document.createElement('canvas');c.width=c.height=S*k;const g=c.getContext('2d');g.scale(k,k);
+  g.fillStyle='rgba(4,6,16,0.93)';g.fillRect(0,0,S,S);g.globalCompositeOperation='destination-out';const ax=len,ay=len,a=-Math.PI/2;
+  const gr=g.createRadialGradient(ax,ay,10,ax,ay,len);gr.addColorStop(0,'rgba(0,0,0,1)');gr.addColorStop(0.7,'rgba(0,0,0,0.85)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.beginPath();g.moveTo(ax,ay);g.arc(ax,ay,len-2,a-sp,a+sp);g.closePath();g.fill();
+  const g2=g.createRadialGradient(ax,ay+20,10,ax,ay+20,95);g2.addColorStop(0,'rgba(0,0,0,0.85)');g2.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=g2;g.fillRect(ax-100,ay-80,200,200);
+  g.globalCompositeOperation='source-over';g.globalAlpha=0.1;g.fillStyle='#fff3a0';g.beginPath();g.moveTo(ax,ay);g.arc(ax,ay,len*0.8,a-sp*0.8,a+sp*0.8);g.closePath();g.fill();
+  dk={c,len};return dk}
+// tunnel darkness: one cached half-res headlamp mask (cone + glow) rotated with the canoe; the rest is a single dark fill (no per-frame offscreen compositing)
 function drawDarkness(){let t=null;for(const q of L.tunnels)if(q.y1<camY+VH&&q.y0>camY){t=q;break}if(!t)return;
-  const w=Math.ceil(VW/2),h=Math.ceil(VH/2);if(!dk||dk.width!==w||dk.height!==h){dk=document.createElement('canvas');dk.width=w;dk.height=h;dkx=dk.getContext('2d')}
-  const g=dkx;g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,w,h);g.setTransform(0.5,0,0,0.5,0,0);const sy0=t.y1-camY+14,sy1=t.y0-camY-14;g.globalCompositeOperation='source-over';g.fillStyle='rgba(4,6,16,0.93)';g.fillRect(0,Math.max(0,sy0),VW,Math.min(VH,sy1)-Math.max(0,sy0));
-  g.globalCompositeOperation='destination-out';const ax=boat.x-camX+Math.sin(boat.ang)*20,ay=boat.y-camY-Math.cos(boat.ang)*20,a=-Math.PI/2+boat.ang,len=290,sp=0.46;
-  const gr=g.createRadialGradient(ax,ay,10,ax,ay,len);gr.addColorStop(0,'rgba(0,0,0,1)');gr.addColorStop(0.7,'rgba(0,0,0,0.85)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.beginPath();g.moveTo(ax,ay);g.arc(ax,ay,len,a-sp,a+sp);g.closePath();g.fill();
-  const g2=g.createRadialGradient(boat.x-camX,boat.y-camY,10,boat.x-camX,boat.y-camY,95);g2.addColorStop(0,'rgba(0,0,0,0.85)');g2.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=g2;g.fillRect(boat.x-camX-100,boat.y-camY-100,200,200);
-  if(dadOut()){const dx=dad.x-camX,dy=dad.y-camY;g.fillStyle='rgba(0,0,0,0.7)';g.beginPath();g.arc(dx,dy,36,0,TAU);g.fill()}
-  for(const o of L.obj)if(o.t==='acorn'&&!o.got&&o.y>t.y1&&o.y<t.y0&&vis(o.y)){g.fillStyle='rgba(0,0,0,0.6)';g.beginPath();g.arc(o.x-camX,o.y-camY,12,0,TAU);g.fill()}
-  g.globalCompositeOperation='source-over';X.drawImage(dk,camX,camY,VW,VH);
-  // warm headlamp tint
-  X.globalAlpha=0.12;X.fillStyle='#fff3a0';X.beginPath();X.moveTo(ax+camX,ay+camY);X.arc(ax+camX,ay+camY,len*0.8,a-sp*0.8,a+sp*0.8);X.closePath();X.fill();X.globalAlpha=1}
+  const top=Math.max(camY,t.y1+14),bot=Math.min(camY+VH,t.y0-14);if(bot<=top)return;const m=headMask(),len=m.len;
+  const ax=boat.x+Math.sin(boat.ang)*20,ay=boat.y-Math.cos(boat.ang)*20;
+  X.save();X.beginPath();X.rect(camX-2,top,VW+4,bot-top);X.clip();X.translate(ax,ay);X.rotate(boat.ang);X.drawImage(m.c,-len,-len,len*2,len*2);
+  const B=2400,e=len-1.5;X.fillStyle='rgba(4,6,16,0.93)';X.beginPath();X.rect(-B,-B,2*B,2*B);X.rect(-e,-e,2*e,2*e);X.fill('evenodd');X.restore();
+  if(dadOut()&&dad.y>top&&dad.y<bot){X.globalAlpha=0.35;circ(dad.x,dad.y,30,'#fff3a0');X.globalAlpha=1;drawDadSwim(dad.x,dad.y,T,dad.soggy)}
+  for(const o of L.obj)if(o.t==='acorn'&&!o.got&&o.y>top&&o.y<bot&&vis(o.y)){X.globalAlpha=0.5+0.3*Math.sin(T*6+o.x);circ(o.x,o.y,5,o.pk?'#cfd8dc':'#ffd23f');X.globalAlpha=1}}
 function drawWake(){const sp=boat.s+L.cur;if(sp<20)return;const a=clamp(sp/250,0,0.6),c=Math.cos(boat.ang),s=Math.sin(boat.ang),bx=boat.x+s*40,by=boat.y-c*40;
   X.strokeStyle='rgba(255,255,255,'+a+')';X.lineWidth=2;for(const k of [-1,1]){X.beginPath();X.moveTo(bx,by);X.lineTo(boat.x+k*34-s*80,boat.y+c*90);X.stroke()}
   for(let i=0;i<3;i++){const k=((T*1.4+i/3)%1);ell(boat.x-s*(50+k*40),boat.y+c*(50+k*40),10+k*16,4+k*4,'rgba(255,255,255,'+(a*0.5*(1-k))+')')}}
@@ -829,8 +847,15 @@ function drawWorld(){const sx=shake>0?rr(-1,1)*shake*10:0,sy=shake>0?rr(-1,1)*sh
   drawRiver();drawReflections();drawLeaves();drawDeco(false);drawObjects();drawBoss();
   for(const g of geese)ell(g.x+18,g.y+38,0,0,'#000');
   drawCanoe();drawDeco(true);drawBridges();drawTunnelArches();drawGeese();drawParts();drawFloats();
-  drawDarkness();
+  drawDarkness();drawDadHint();
   X.restore();drawSmear()}
+// "Paddle to Dad!" helper: pulsing pickup ring around Dad + an arrow from the canoe pointing at him
+function drawDadHint(){if(dad.st!=='water'||state!=='play')return;const dx=dad.x-boat.x,dy=dad.y-boat.y,d=Math.hypot(dx,dy)||1,p=0.5+0.5*Math.sin(T*7);
+  X.lineWidth=3;X.strokeStyle='rgba(255,225,77,'+(0.55+0.4*p)+')';X.setLineDash([8,6]);X.beginPath();X.arc(dad.x,dad.y,26+DAD_GRAB*0.5+p*4,0,TAU);X.stroke();X.setLineDash([]);
+  txt(dad.self?'Doggy paddle!':'Paddle to Dad!',dad.x,dad.y-44-p*3,13,'#ffe14d',{st:'#5a2a00',sw:4});
+  if(d>70){const ux=dx/d,uy=dy/d,r0=46,ax=boat.x+ux*r0,ay=boat.y+uy*r0,L2=Math.min(46,d-60);X.save();X.translate(ax,ay);X.rotate(Math.atan2(uy,ux));X.globalAlpha=0.75+0.25*p;
+    X.fillStyle='#ffe14d';X.strokeStyle='#5a2a00';X.lineWidth=3;X.beginPath();X.moveTo(0,-5);X.lineTo(L2,-5);X.lineTo(L2,-13);X.lineTo(L2+18,0);X.lineTo(L2,13);X.lineTo(L2,5);X.lineTo(0,5);X.closePath();X.stroke();X.fill();X.restore()}
+  if(dad.self===undefined||!dad.self){const left=Math.max(0,10-dad.t);if(left<4){txt('Dad is coming in '+Math.ceil(left)+'...',dad.x,dad.y+40,11,'#fff',{sw:3})}}}
 
 // ================= UI: HUD, controls, screens, flow, main loop =================
 let UI=[],HUDB=[],fwT=0,newUnlocks=[],titleMsg=null;
@@ -898,7 +923,7 @@ function drawTitle(){dim(0.2);const W=VW,narrow=W<600,cx=W/2;UI=[];
     const s=canoeSpr(C.id);X.save();X.translate(x,cy);X.rotate(Math.PI/2);X.globalAlpha=own?1:0.35;X.drawImage(s.c,-s.w*0.22,-s.h*0.22,s.w*0.44,s.h*0.44);X.restore();X.globalAlpha=1;if(!own)txt('\uD83D\uDD12',x,cy,16,'#fff',{sw:0});btn('cn'+i,x-26,cy-26,52,52)});
   txt(narrow?'':'CANOES',cx0+87,cy-34,10,'#fff',{sw:3});
   const ry=narrow?VH-44:VH-48,rx=narrow?cx:W-10-insR();
-  const sl=steerMode==='canoe'?'STEER: REAL CANOE':'STEER: ARROWS';
+  const sl=steerMode==='canoe'?'REAL PADDLING: ON':'REAL PADDLING: OFF';
   if(narrow){bigBtn('steer',sl,cx-78,ry,150,38,'#4fc3f7','#1e88e5',11);bigBtn('records','\uD83C\uDFC6 RECORDS',cx+86,ry,130,38,'#ffd54f','#ff8f00',12)}
   else{bigBtn('steer',sl,rx-235,ry,170,40,'#4fc3f7','#1e88e5',12);bigBtn('records','\uD83C\uDFC6 RECORDS',rx-70,ry,136,40,'#ffd54f','#ff8f00',13)}
   roundIcon('mute',W-10-insR()-20,26,18,muteIcon);txt('v'+VERSION,W-10-insR()-20,52,8,'rgba(255,255,255,0.6)',{sw:0});
@@ -911,7 +936,7 @@ function drawRecords(){dim(0.55);UI=[];const w=Math.min(560,VW-30),x=panel(w,VH-
   board.slice(0,5).forEach((e,i)=>{const yy=98+i*22;txt((i+1)+'.',x+w*0.53,yy,11,'#c0392b',{a:'left',sw:0});txt(e.score+' pts',x+w*0.58,yy,11,'#1d3b4a',{a:'left',sw:0});txt(fmtT(e.time),x+w*0.8,yy,10,'#1e6aa5',{sw:0});drawBear(x+w*0.9,yy,0,0,0.55);txt(''+e.bears,x+w*0.95,yy,10,'#b5521c',{sw:0})});
   txt('Lifetime woolly bears saved: '+lifeBears+'   \u2022   Rubber ducks: '+ducksFound.length+'/5',VW/2,226,12,'#1d3b4a',{sw:0});
   bigBtn('back','BACK',VW/2,VH-56,150,44,'#7cff6b','#2fa84a')}
-const TIPS=['Tap LEFT and RIGHT in turn to go fast! Paddle on one side to turn the other way.','Twisty river! Lean into the turns, and wave to the turtles.','Burping fish push you around. Scoop woolly bears off the leaves!','Beaver dams: find the gap! Watch out for geese.','Fast water! Dodge the rocks, then cheer up a grumpy turtle.'];
+const TIPS=['Tap LEFT and RIGHT in turn to go fast! Hold one to steer that way.','Twisty river! Lean into the turns, and wave to the turtles.','Burping fish push you around. Scoop woolly bears off the leaves!','Beaver dams: find the gap! Watch out for geese.','Fast water! Dodge the rocks, then cheer up a grumpy turtle.'];
 function drawCard(){const t=card.t;dim(Math.min(0.45,t));const w=Math.min(470,VW-30),y=VH/2-104;X.save();X.translate(VW/2,y+104);const s=easeB(Math.min(1,t*2.5));X.scale(s,s);X.translate(-VW/2,-y-104);
   const x=panel(w,208,y);txt('LEVEL '+(lvI+1),VW/2,y+30,16,'#e8762b',{sw:0});txt(L.D.name,VW/2,y+64,30,'#fff',{st:'#1e6aa5',sw:7});txt(L.D.sub,VW/2,y+96,13,'#1d3b4a',{sw:0});
   const tip=TIPS[lvI],words=tip.split(' ');let l1='',l2='';for(const wd of words){if((l1+' '+wd).length<46&&!l2)l1+=(l1?' ':'')+wd;else l2+=(l2?' ':'')+wd}txt(l1,VW/2,y+124,11.5,'#5a4a3a',{sw:0});txt(l2,VW/2,y+142,11.5,'#5a4a3a',{sw:0});
@@ -920,7 +945,7 @@ function drawCard(){const t=card.t;dim(Math.min(0.45,t));const w=Math.min(470,VW
 function drawOops(){dim(Math.min(0.5,stT));const y=VH/2-70,w=320;panel(w,130,y);txt('Oopsie!',VW/2,y+34,30,'#fff',{st:'#c0392b',sw:7});txt('Back to the buoy \u2014 hearts refilled!',VW/2,y+72,13,'#5a3a1a',{sw:0});
   for(let i=0;i<MAXH;i++){const on=stT>0.4+i*0.3;heart(VW/2+(i-1)*34,y+104,on?15:11,on?'#ff4d6d':'#e8c8a8')}}
 function drawPaused(){dim(0.55);UI=[];const y=VH/2-120;panel(300,240,y);txt('PAUSED',VW/2,y+32,26,'#fff',{st:'#1e6aa5',sw:6});bigBtn('resume','PADDLE ON!',VW/2,y+86,210,50,'#7cff6b','#2fa84a');
-  bigBtn('steer',steerMode==='canoe'?'STEER: REAL CANOE':'STEER: ARROWS',VW/2,y+146,210,38,'#4fc3f7','#1e88e5',12);bigBtn('home','HOME',VW/2,y+200,150,40,'#ffd54f','#ff8f00')}
+  bigBtn('steer',steerMode==='canoe'?'REAL PADDLING: ON':'REAL PADDLING: OFF',VW/2,y+146,210,38,'#4fc3f7','#1e88e5',12);bigBtn('home','HOME',VW/2,y+200,150,40,'#ffd54f','#ff8f00')}
 function drawClear(){const t=stT,ci=clearInfo;dim(Math.min(0.4,t*0.5));UI=[];const w=Math.min(440,VW-30),y=VH/2-128;X.save();const s=easeB(Math.min(1,t*2));X.translate(VW/2,y+128);X.scale(s,s);X.translate(-VW/2,-y-128);
   panel(w,256,y);txt('LEVEL CLEAR!',VW/2,y+32,28,'#fff',{st:'#2fa84a',sw:7});for(let i=0;i<3;i++){const on=t>0.5+i*0.3&&i<ci.stars;star(VW/2+(i-1)*44,y+70,on?17:13,on?'#ffd23f':'#e8d8c0')}
   const n=L.bearsTotal,bx0=VW/2-(n-1)*13;for(let i=0;i<n;i++){const ok=i<bearsLv;X.globalAlpha=ok?1:0.25;drawBear(bx0+i*26,y+104,0,T*6+i,ok?1:0.9);X.globalAlpha=1}
@@ -953,7 +978,7 @@ function finish(){if(state==='end')return;LS.set('beat',1);const nb=!bestT[lvI]|
   endStats={bears:run.bears,bearsTotal:run.bearsTotal,time:run.time,score:run.score,acorns:run.acorns,dunks:run.dunks,ducks:run.ducks,bonks:run.bonks,unlocks:newUnlocks.slice(),full:runFull,rank};newUnlocks=[];
   state='end';stT=0;clearInput();AUD.setTheme('win');AUD.SFX.fanfare();setTimeout(()=>AUD.SFX.cheer(),600);say('did',3);fwT=0}
 function toTitle(){clearInput();state='title';stT=0;paused=false;boss=null;demo=null;AUD.setTheme('title');parts=[];floats=[];banner=null;smear=[]}
-function setSteer(){steerMode=steerMode==='canoe'?'arrow':'canoe';LS.set('steer',steerMode);AUD.SFX.click()}
+function setSteer(){steerMode=steerMode==='canoe'?'arrow':'canoe';LS.set('steer2',steerMode);AUD.SFX.click()}
 function uiKey(k){if(k==='pause'){if(state==='play'){paused=!paused;clearInput();AUD.SFX.click()}return}
   if(paused){paused=false;clearInput();return}
   if(state==='title'){AUD.SFX.click();newRun(0)}else if(state==='card'&&card.t>0.4)startPlay();else if(state==='clear'&&stT>1.5)nextLevel();else if(state==='end'&&stT>1.5)newRun(0);else if(state==='records')state='title'}
@@ -1051,7 +1076,7 @@ AUD.setTheme('title');requestAnimationFrame(frame);
 if(DEBUG)window.__A={get state(){return state},set state(v){state=v},get boat(){return boat},get dad(){return dad},get L(){return L},get hearts(){return hearts},set hearts(v){hearts=v},get score(){return score},get bearsLv(){return bearsLv},get carry(){return carry.length},
   get boss(){return boss},get lv(){return lvI},get run(){return run},get paused(){return paused},get stT(){return stT},set stT(v){stT=v},get card(){return card},get endStats(){return endStats},get clearInfo(){return clearInfo},get inv(){return inv},set inv(v){inv=v},
   get inp(){return {l:inp.l,r:inp.r}},get nptrs(){return ptrs.size},get pressQ(){return pressQ.length},get cov(){return cov},get fps(){return fps},get work(){return work},get workMax(){return workMax},resetPerf(){workMax=0},get ema(){return ema},get dprCap(){return dprCap},get DPR(){return DPR},get smear(){return smear.length},get geese(){return geese.length},get flowerCarry(){return flowerCarry},
-  get canoes(){return canoesOwned},get canoeSel(){return canoeSel},get steer(){return steerMode},get board(){return board},get bestT(){return bestT},get unlockLv(){return unlockLv},set unlockLv(v){unlockLv=v},get ducks(){return ducksFound},get lvTime(){return lvTime},get AP(){return AP.mode},
+  get canoes(){return canoesOwned},get canoeSel(){return canoeSel},get steer(){return steerMode},steerSet(v){steerMode=v},get board(){return board},get bestT(){return bestT},get unlockLv(){return unlockLv},set unlockLv(v){unlockLv=v},get ducks(){return ducksFound},get lvTime(){return lvTime},get AP(){return AP.mode},
   audio:AUD,newRun,startPlay,startLevel,finish,set TS(v){TS=v},get TS(){return TS},bot(on){bot.on=on;bot.l=bot.r=0;syncInp()},
   tele(y,x){boat.y=y;boat.x=x==null?riverC(y):x;boat.vx=0;boat.s=0;camUpdate(0,true)},spawnGoose(){spawnGoose(false)},dunk(k){dad.st='wind';dad.k=k;dad.t=0;dad.side=R()<0.5?-1:1;if(k==='sneeze'){say('dadsneeze',3);setTimeout(()=>AUD.SFX.sneeze(),700)}},
   toClient:(x,y)=>({x:x*SC+OX,y:y*SC+OY}),ctl,ctlRects,get VW(){return VW},get VH(){return VH},get portrait(){return portrait},get ui(){return UI.map(b=>({id:b.id,x:b.x+b.w/2,y:b.y+b.h/2}))},get hud(){return HUDB.map(b=>({id:b.id,x:b.x+b.w/2,y:b.y+b.h/2}))},
