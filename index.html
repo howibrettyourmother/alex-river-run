@@ -1,5 +1,5 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8">
-<meta name="app-version" content="1.2.0"><meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
+<meta name="app-version" content="1.3.0"><meta http-equiv="Cache-Control" content="no-cache, must-revalidate"><meta http-equiv="Pragma" content="no-cache">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="River Run"><meta name="mobile-web-app-capable" content="yes"><meta name="application-name" content="River Run"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#2c6474">
 <meta name="format-detection" content="telephone=no">
@@ -160,10 +160,10 @@ const AUD=(()=>{
 // ================= core: canvas, layout, input, prefs =================
 const cv=document.getElementById('c');let X=cv.getContext('2d',{alpha:false});const X0=X;
 const DEBUG=/[?&]debug=1/.test(location.search),ICONMODE=/[?&]icon=1/.test(location.search),OGMODE=/[?&]og=1/.test(location.search);
-const VERSION='1.2.0',FONT='"Arial Rounded MT Bold","Fredoka","Baloo 2","Trebuchet MS",system-ui,sans-serif';
+const VERSION='1.3.0',FONT='"Arial Rounded MT Bold","Fredoka","Baloo 2","Trebuchet MS",system-ui,sans-serif';
 let SW=0,SH=0,DPR=1,SC=1,VW=640,VH=400,OX=0,OY=0,portrait=false,INS={l:0,r:0,t:0,b:0},dprCap=2,CTL=null;
 const insEl=document.createElement('div');insEl.style.cssText='position:fixed;left:0;top:0;width:0;height:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);visibility:hidden;pointer-events:none';document.body.appendChild(insEl);
-function resize(){const vv=window.visualViewport;SW=Math.round(vv&&vv.width||innerWidth);SH=Math.round(vv&&vv.height||innerHeight);if(vv&&vv.scale>1.01){SW=innerWidth;SH=innerHeight}DPR=Math.min(devicePixelRatio||1,dprCap);
+function resize(){const vv=window.visualViewport;SW=Math.round(vv&&vv.width||innerWidth);SH=Math.round(vv&&vv.height||innerHeight);if(vv&&vv.scale>1.01){SW=innerWidth;SH=innerHeight}DPR=Math.min(devicePixelRatio||1,dprCap,Math.min(SW,SH)>=700?1.5:9);
   const cs=getComputedStyle(insEl);INS={t:parseFloat(cs.paddingTop)||0,r:parseFloat(cs.paddingRight)||0,b:parseFloat(cs.paddingBottom)||0,l:parseFloat(cs.paddingLeft)||0};
   portrait=SH>SW*1.1;
   if(!portrait){VH=Math.max(400,Math.round(640*SH/SW));SC=SH/VH;VW=SW/SC;OX=0;OY=0}
