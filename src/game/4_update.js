@@ -9,7 +9,11 @@ function startLevel(i){lvI=i;buildLevel(i);L.stonesTotal=L.obj.filter(o=>o.t==='
   dad={st:'boat',k:'',t:0,x:0,y:0,vx:0,vy:0,soggy:0,hat:1,lean:0,sneeze:0,reach:0,side:1,h:0};
   hearts=MAXH;score=0;acorns=0;stones=0;bearsLv=0;lvTime=0;carry=[];checkpoint={y:y0,x:boat.x};inv=0;geese=[];poops=[];smear=[];boss=null;flowers=[];flowerCarry=0;parts=[];floats=[];banner=null;saidOnce={};oopsN=0;
   lvStats={dunks:0,bonks:0,waves:0,duck:0};camY=boat.y-anchor;camX=boat.x-VW/2;
-  state='card';stT=0;paused=false;card={t:0};clearInput();AUD.setTheme(L.D.music);setTimeout(()=>say('l'+(i+1),3),350);hintT=0;tut=i===0?{s:0,t:0,h:0}:null}
+  state='card';stT=0;paused=false;card={t:0};clearInput();AUD.setTheme(L.D.music);setTimeout(()=>say('l'+(i+1),3),350);hintT=0;tut=i===0?{s:0,t:0,h:0}:null;
+  const R=LS.get('resume',null);if(R&&R.lv===i&&R.y<y0-200){boat.y=R.y;boat.x=R.x;checkpoint={y:R.y,x:R.x};camY=boat.y-anchor;camX=boat.x-VW/2;tut=null}LS.set('resume',null)}
+// hub home / app switch: remember the last checkpoint of the level in progress
+function hubSave(){try{if((state==='play'||state==='card')&&checkpoint&&!boss)LS.set('resume',{lv:lvI,x:checkpoint.x,y:checkpoint.y});else if(state==='title')0;}catch(e){}}
+window.hubSave=hubSave;addEventListener('hubsave',hubSave);addEventListener('pagehide',hubSave);document.addEventListener('visibilitychange',()=>{if(document.hidden)hubSave()});
 function startPlay(){if(state!=='card')return;state='play';stT=0;card=null;clearInput();if(tut)say('tut1',3);else say(lvI===4?'rapids':pick(['go','go2']),2)}
 // ---------- particles / floating text ----------
 function splash(x,y,n,sp,col){for(let i=0;i<n;i++){const a=rr(0,TAU),s=rr(0.3,1)*sp;parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:0,max:rr(0.35,0.8),sz:rr(1.5,3.5),col:col||'rgba(235,250,255,0.9)',k:'drop',g:0})}}

@@ -146,10 +146,10 @@ function toTitle(){clearInput();state='title';stT=0;paused=false;boss=null;demo=
 function setSteer(){steerMode=steerMode==='canoe'?'arrow':'canoe';LS.set('steer2',steerMode);AUD.SFX.click()}
 function uiKey(k){if(k==='pause'){if(state==='play'){paused=!paused;clearInput();AUD.SFX.click()}return}
   if(paused){paused=false;clearInput();return}
-  if(state==='title'){AUD.SFX.click();newRun(0)}else if(state==='card'&&card.t>0.4)startPlay();else if(state==='clear'&&stT>1.5)nextLevel();else if(state==='end'&&stT>1.5)newRun(0);else if(state==='records')state='title'}
+  if(state==='title'){AUD.SFX.click();const R=LS.get('resume',null);newRun(R&&R.lv<unlockLv?R.lv:0)}else if(state==='card'&&card.t>0.4)startPlay();else if(state==='clear'&&stT>1.5)nextLevel();else if(state==='end'&&stT>1.5)newRun(0);else if(state==='records')state='title'}
 function uiTap(p){let hit=null;for(let i=UI.length-1;i>=0;i--){const b=UI[i];if(p.x>=b.x&&p.x<=b.x+b.w&&p.y>=b.y&&p.y<=b.y+b.h){hit=b.id;break}}
   if(paused){if(hit==='resume'){paused=false;clearInput();AUD.SFX.click()}else if(hit==='home'){AUD.SFX.click();toTitle()}else if(hit==='steer')setSteer();return}
-  if(state==='title'){if(hit==='play'){AUD.SFX.click();newRun(0)}else if(hit&&hit.startsWith('lv')){const i=+hit.slice(2);if(i<unlockLv){AUD.SFX.click();newRun(i)}else{AUD.SFX.bonk();titleMsg={s:'Clear level '+i+' to unlock!',t:T}}}
+  if(state==='title'){if(hit==='play'){AUD.SFX.click();const R=LS.get('resume',null);newRun(R&&R.lv<unlockLv?R.lv:0)}else if(hit&&hit.startsWith('lv')){const i=+hit.slice(2);if(i<unlockLv){AUD.SFX.click();newRun(i)}else{AUD.SFX.bonk();titleMsg={s:'Clear level '+i+' to unlock!',t:T}}}
     else if(hit&&hit.startsWith('cn')){const C=CANOES[+hit.slice(2)];if(canoesOwned.includes(C.id)){canoeSel=C.id;LS.set('canoe',canoeSel);AUD.SFX.boing()}else{AUD.SFX.bonk();titleMsg={s:C.name+': '+C.need,t:T}}}
     else if(hit==='steer')setSteer();else if(hit==='records'){AUD.SFX.click();state='records'}else if(hit==='mute')toggleMute();return}
   if(state==='records'){if(hit==='back'||!hit){AUD.SFX.click();state='title'}return}
