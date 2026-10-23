@@ -44,4 +44,8 @@ b.addEventListener('mousedown',down);b.addEventListener('mouseup',up);b.addEvent
 ['pointerdown','pointerup','click'].forEach(function(n){b.addEventListener(n,stop)});
 function add(){document.body.appendChild(b);document.body.appendChild(hint)}if(document.body)add();else addEventListener('DOMContentLoaded',add)})();</script>
 <script>/*bgm*/window.BGM_CFG={"id":"alex-river-run","base":"music/","v":"20261023m","tracks":{"title":[102.857143,1.0],"canal":[97.627119,1.0],"willow":[73.846154,1.0],"marsh":[115.2,1.0],"pond":[106.666667,1.0],"rapids":[72.727273,1.0],"boss":[80.0,1.0],"win":[91.428571,1.0]},"map":{"off":""},"pos":"left:8px;top:92px","poll":function(){var a=window.AUD||(typeof AUD!=='undefined'?AUD:null);if(!a)return{};return{area:a.theme,speaking:a.speaking,muted:a.muted}}};</script><script src="music/bgm.js?v=20261023m" defer></script>
+<script>/*sw-reload*/(function(){if(!('serviceWorker' in navigator))return;var sw=navigator.serviceWorker,had=!!sw.controller,done=false;
+sw.addEventListener('controllerchange',function(){if(!had){had=true;return}if(done)return;done=true;try{if(sessionStorage.swReloaded&&Date.now()-sessionStorage.swReloaded<10000)return;sessionStorage.swReloaded=Date.now()}catch(e){}location.reload()});
+function up(){if(sw.getRegistration)sw.getRegistration().then(function(g){if(g)g.update()}).catch(function(){})}
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')up()});})();</script>
 </body></html>
