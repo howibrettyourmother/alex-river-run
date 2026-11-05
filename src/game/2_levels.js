@@ -22,7 +22,12 @@ const LEVELS=[
   {key:'rapids',name:'Mill Pond Rush',sub:'Make-believe fast water to the Milford Mill Pond!',music:'rapids',len:7000,cur:80,hw:160,amp:85,wl:1900,seed:53,
    water:'#2f6f93',water2:'#7fc2d8',bank:'#5b7c45',edge:'#6f6f6f',style:'rapids',
    tunnels:[],bridges:[0.4],dams:[],dad:[[0.3,'turn'],[0.66,'hat']],
-   w:{rocks:5,log:2,fish:2,burp:0,cattail:0,wave:4},geese:[0.5],bears:7,step:[96,145],gap:112,boss:true}
+   w:{rocks:5,log:2,fish:2,burp:0,cattail:0,wave:4},geese:[0.5],bears:7,step:[96,145],gap:112}
+,
+  {key:'island',name:'Island Lake Loop',sub:'Pines, paddling & picnic ducks around Island Lake',music:'willow',len:7800,cur:34,hw:176,amp:75,wl:2500,seed:67,
+   water:'#3a7f7a',water2:'#6eb5a8',bank:'#6a9440',edge:'#6b5232',style:'willow',
+   tunnels:[],bridges:[0.28,0.72],dams:[0.5],dad:[[0.2,'hat'],[0.48,'frog'],[0.78,'sneeze']],
+   w:{rocks:2,log:3,fish:2,burp:1,cattail:2,wave:1},geese:[0.25,0.55,0.85],bears:9,step:[110,170],gap:118,boss:true}
 ];
 const ARENA_LEN=360,ARENA_HW=215,BS=0.72;
 let L=null;
