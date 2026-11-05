@@ -20,7 +20,7 @@ function drawTut(){if(!tut||state!=='play'||paused)return;const t=tut,msgs=['Tap
     const bob=Math.sin(T*8)*5;ty=clamp(ty,90,VH-80);tx=clamp(tx,30,VW-30);X.save();X.translate(tx,ty-34+bob);X.fillStyle='#ffe14d';X.strokeStyle='#7a3a10';X.lineWidth=3;X.beginPath();X.moveTo(-10,-14);X.lineTo(10,-14);X.lineTo(10,0);X.lineTo(18,0);X.lineTo(0,18);X.lineTo(-18,0);X.lineTo(-10,0);X.closePath();X.stroke();X.fill();X.restore()}}
 function drawHUD(){HUDB=[];const l=10+insL(),r=VW-10-insR();
   rrect(l,8,196,58,14);X.fillStyle='rgba(10,40,55,0.5)';X.fill();
-  for(let i=0;i<MAXH;i++)heart(l+18+i*24,24,13,i<hearts?'#ff4d6d':'rgba(255,255,255,0.25)');
+  for(let i=0;i<MAXH();i++)heart(l+18+i*24,24,13,i<hearts?'#ff4d6d':'rgba(255,255,255,0.25)');
   drawBear(l+92,23,0,T*4,0.8);txt(bearsLv+'/'+L.bearsTotal,l+118,24,13,'#ffcc80',{sw:3});
   drawAcorn(l+16,48,T);txt(''+acorns,l+30,48,13,'#ffe14d',{a:'left',sw:3});dspr(petoskeySpr(),l+160,24,0.85);txt(stones+'/'+L.stonesTotal,l+172,24,12,'#eceff1',{a:'left',sw:3});
   txt('POWER',l+72,48,9,'rgba(255,255,255,0.8)',{sw:0});for(let i=0;i<6;i++)circ(l+92+i*10,48,3.6,i<boat.rhythm?(i<3?'#7cff6b':i<5?'#ffd23f':'#ff6a1f'):'rgba(255,255,255,0.22)');
@@ -74,6 +74,7 @@ function drawTitle(){dim(0.2);const W=VW,narrow=W<600,cx=W/2;UI=[];
   if(narrow){bigBtn('steer',sl,cx-78,ry,150,38,'#4fc3f7','#1e88e5',11);bigBtn('records','\uD83C\uDFC6 RECORDS',cx+86,ry,130,38,'#ffd54f','#ff8f00',12)}
   else{bigBtn('steer',sl,rx-235,ry,170,40,'#4fc3f7','#1e88e5',12);bigBtn('records','\uD83C\uDFC6 RECORDS',rx-70,ry,136,40,'#ffd54f','#ff8f00',13)}
   roundIcon('mute',W-10-insR()-24,28,22,muteIcon);txt('v'+VERSION,W-10-insR()-24,58,8,'rgba(255,255,255,0.6)',{sw:0});
+  bigBtn('diff',diff?'HARD':'NORMAL',10+insL()+ (narrow?70:95),58,narrow?120:150,32,diff?'#ff8a80':'#81c784',diff?'#e53935':'#2e7d32',12);txt(diff?'2 hearts · faster geese':'3 hearts · chill paddle',10+insL()+(narrow?70:95),78,9,'rgba(255,255,255,0.75)',{sw:0});
   rrect(10+insL(),12,narrow?140:190,28,14);X.fillStyle='rgba(10,40,55,0.55)';X.fill();drawBear(26+insL(),26,0,T*4,0.7);txt((narrow?'':'Saved: ')+lifeBears,44+insL(),27,12,'#ffcc80',{a:'left',sw:0});const sx0=insL()+(narrow?96:132);star(sx0,26,8,'#ffd23f');txt(starTotal()+'/15',sx0+11,27,12,'#ffe14d',{a:'left',sw:0});
   if(titleMsg&&T-titleMsg.t<2.5){rrect(cx-150,cy-80,300,32,16);X.fillStyle='rgba(0,0,0,0.75)';X.fill();txt(titleMsg.s,cx,cy-64,13,'#ffe14d',{sw:0})}}
 function drawRecords(){dim(0.55);UI=[];const w=Math.min(560,VW-30),x=panel(w,VH-40,20,'#d9f2ff');txt('\uD83C\uDFC6 RECORDS',VW/2,46,24,'#fff',{st:'#1e88e5',sw:6});
@@ -85,12 +86,12 @@ function drawRecords(){dim(0.55);UI=[];const w=Math.min(560,VW-30),x=panel(w,VH-
   bigBtn('back','BACK',VW/2,VH-56,150,44,'#7cff6b','#2fa84a')}
 const TIPS=['Tap LEFT and RIGHT in turn to go fast! Hold one to steer that way.','Burping fish push you around. Can you spot a great blue heron?','Beaver dams: find the gap! Watch out for Canada geese.','Everyone ducks under the low bridges. Headlamp on in the tunnel!','Fast water! Dodge the rocks, then cheer up Old Mossback.'];
 function drawCard(){const t=card.t;dim(Math.min(0.45,t));const w=Math.min(470,VW-30),y=VH/2-104;X.save();X.translate(VW/2,y+104);const s=easeB(Math.min(1,t*2.5));X.scale(s,s);X.translate(-VW/2,-y-104);
-  const x=panel(w,208,y);txt('LEVEL '+(lvI+1),VW/2,y+30,16,'#e8762b',{sw:0});txt(L.D.name,VW/2,y+64,30,'#fff',{st:'#1e6aa5',sw:7});txt(L.D.sub,VW/2,y+96,13,'#1d3b4a',{sw:0});
+  const x=panel(w,208,y);txt('LEVEL '+(lvI+1)+(diff?' · HARD':''),VW/2,y+30,16,diff?'#e53935':'#e8762b',{sw:0});txt(L.D.name,VW/2,y+64,30,'#fff',{st:'#1e6aa5',sw:7});txt(L.D.sub,VW/2,y+96,13,'#1d3b4a',{sw:0});
   const tip=TIPS[lvI],words=tip.split(' ');let l1='',l2='';for(const wd of words){if((l1+' '+wd).length<46&&!l2)l1+=(l1?' ':'')+wd;else l2+=(l2?' ':'')+wd}txt(l1,VW/2,y+122,12.5,'#5a4a3a',{sw:0});txt(l2,VW/2,y+140,12.5,'#5a4a3a',{sw:0});
   drawBear(VW/2-40,y+170,0,T*5,1.1);txt('x '+L.bearsTotal+' to save!',VW/2+20,y+170,13,'#b5521c',{sw:0});
   miniStars(VW/2+150,y+170,starsBest[lvI],7);if(t>0.6)txt('TAP TO PADDLE!',VW/2,y+196+Math.sin(T*6)*2,15,'#2fa84a',{sw:0});X.restore()}
 function drawOops(){dim(Math.min(0.5,stT));const y=VH/2-70,w=320;panel(w,130,y);txt('Oopsie!',VW/2,y+34,30,'#fff',{st:'#c0392b',sw:7});txt('Back to the buoy \u2014 hearts refilled!',VW/2,y+72,13,'#5a3a1a',{sw:0});
-  for(let i=0;i<MAXH;i++){const on=stT>0.4+i*0.3;heart(VW/2+(i-1)*34,y+104,on?15:11,on?'#ff4d6d':'#e8c8a8')}}
+  for(let i=0;i<MAXH();i++){const on=stT>0.4+i*0.3;heart(VW/2+(i-(MAXH()-1)/2)*34,y+104,on?15:11,on?'#ff4d6d':'#e8c8a8')}}
 function drawPaused(){dim(0.55);UI=[];const y=VH/2-120;panel(300,240,y);txt('PAUSED',VW/2,y+32,26,'#fff',{st:'#1e6aa5',sw:6});bigBtn('resume','PADDLE ON!',VW/2,y+86,210,50,'#7cff6b','#2fa84a');
   bigBtn('steer',steerMode==='canoe'?'REAL PADDLING: ON':'REAL PADDLING: OFF',VW/2,y+146,210,38,'#4fc3f7','#1e88e5',12);bigBtn('home','HOME',VW/2,y+200,150,40,'#ffd54f','#ff8f00')}
 const STAR_NAMES=['All woolly bears','All Petoskey stones','No bonks'];
@@ -151,7 +152,7 @@ function uiTap(p){let hit=null;for(let i=UI.length-1;i>=0;i--){const b=UI[i];if(
   if(paused){if(hit==='resume'){paused=false;clearInput();AUD.SFX.click()}else if(hit==='home'){AUD.SFX.click();toTitle()}else if(hit==='steer')setSteer();return}
   if(state==='title'){if(hit==='play'){AUD.SFX.click();const R=LS.get('resume',null);newRun(R&&R.lv<unlockLv?R.lv:0)}else if(hit&&hit.startsWith('lv')){const i=+hit.slice(2);if(i<unlockLv){AUD.SFX.click();newRun(i)}else{AUD.SFX.bonk();titleMsg={s:'Clear level '+i+' to unlock!',t:T}}}
     else if(hit&&hit.startsWith('cn')){const C=CANOES[+hit.slice(2)];if(canoesOwned.includes(C.id)){canoeSel=C.id;LS.set('canoe',canoeSel);AUD.SFX.boing()}else{AUD.SFX.bonk();titleMsg={s:C.name+': '+C.need,t:T}}}
-    else if(hit==='steer')setSteer();else if(hit==='records'){AUD.SFX.click();state='records'}else if(hit==='mute')toggleMute();return}
+    else if(hit==='steer')setSteer();else if(hit==='diff'){diff=1-diff;LS.set('diff',diff);AUD.SFX.click();titleMsg={s:diff?'Hard mode — 2 hearts!':'Normal mode — 3 hearts',t:T}}else if(hit==='records'){AUD.SFX.click();state='records'}else if(hit==='mute')toggleMute();return}
   if(state==='records'){if(hit==='back'||!hit){AUD.SFX.click();state='title'}return}
   if(state==='card'){if(card.t>0.4)startPlay();return}if(state==='clear'){if(stT>1.5)nextLevel();return}
   if(state==='end'){if(hit==='again'){AUD.SFX.click();newRun(0)}else if(hit==='home'){AUD.SFX.click();toTitle()}}}

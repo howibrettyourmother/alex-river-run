@@ -2,12 +2,12 @@
 let state='title',T=0,stT=0,TS=1,lvI=0,paused=false,camX=0,camY=0,anchor=250,shake=0,parts=[],floats=[],banner=null,card=null;
 let tut=null,hearts=3,score=0,acorns=0,stones=0,bearsLv=0,lvTime=0,runTime=0,runFull=false,run=null,boat=null,dad=null,carry=[],checkpoint=null,inv=0,geese=[],poops=[],smear=[],boss=null,flowers=[],flowerCarry=0;
 let lvStats=null,endStats=null,clearInfo=null,oopsN=0,saidOnce={},cov={n:0,viol:0,ex:[]},hintT=0;
-const MAXH=3,STROKE_REP=0.42,BOW=-38;
+const STROKE_REP=0.42,BOW=-38;function MAXH(){return diff?2:3}
 function newRun(i){runFull=i===0;run={score:0,bears:0,bearsTotal:0,acorns:0,stones:0,ducks:0,dunks:0,time:0,bonks:0,waves:0,levels:0};startLevel(i)}
 function startLevel(i){lvI=i;buildLevel(i);L.stonesTotal=L.obj.filter(o=>o.t==='acorn'&&o.pk).length;const y0=-40;
   boat={x:riverC(y0),y:y0,vx:0,s:0,ang:0,side:-1,ph:1,dph:1,rhythm:0,lastStroke:-9,repT:0,brake:0,duck:0,spin:0,wave:0,cheer:0,turn:0,maxRhythm:0};
   dad={st:'boat',k:'',t:0,x:0,y:0,vx:0,vy:0,soggy:0,hat:1,lean:0,sneeze:0,reach:0,side:1,h:0};
-  hearts=MAXH;score=0;acorns=0;stones=0;bearsLv=0;lvTime=0;carry=[];checkpoint={y:y0,x:boat.x};inv=0;geese=[];poops=[];smear=[];boss=null;flowers=[];flowerCarry=0;parts=[];floats=[];banner=null;saidOnce={};oopsN=0;
+  hearts=MAXH();score=0;acorns=0;stones=0;bearsLv=0;lvTime=0;carry=[];checkpoint={y:y0,x:boat.x};inv=0;geese=[];poops=[];smear=[];boss=null;flowers=[];flowerCarry=0;parts=[];floats=[];banner=null;saidOnce={};oopsN=0;
   lvStats={dunks:0,bonks:0,waves:0,duck:0};camY=boat.y-anchor;camX=boat.x-VW/2;
   state='card';stT=0;paused=false;card={t:0};clearInput();AUD.setTheme(L.D.music);setTimeout(()=>say('l'+(i+1),3),350);hintT=0;tut=i===0?{s:0,t:0,h:0}:null;
   const R=LS.get('resume',null);if(R&&R.lv===i&&R.y<y0-200){boat.y=R.y;boat.x=R.x;checkpoint={y:R.y,x:R.x};camY=boat.y-anchor;camX=boat.x-VW/2;tut=null}LS.set('resume',null)}
@@ -59,7 +59,7 @@ function hitTest(o,cs){// returns {nx,ny} push normal or null
   else if(o.t==='log'){const ca=Math.cos(o.ang)*o.len/2,sa=Math.sin(o.ang)*o.len/2;for(const c of cs){const s=segDist(c.x,c.y,o.x-ca,o.y-sa,o.x+ca,o.y+sa);if(s.d<c.r+o.r)return{nx:(c.x-s.qx)/(s.d||1),ny:(c.y-s.qy)/(s.d||1),pen:c.r+o.r-s.d}}}
   else if(o.t==='dam'){for(const c of cs){if(Math.abs(c.y-o.y)<o.h/2+c.r&&Math.abs(c.x-o.gx)>o.gw/2-c.r*0.6){const nx=0,ny=c.y>o.y?1:-1;return{nx,ny,pen:o.h/2+c.r-Math.abs(c.y-o.y)}}}}
   return null}
-const bonkLog=[];function bonk(nx,ny,why){if(inv>0)return;bonkLog.push(why+'@'+Math.round(-boat.y)+'/lv'+lvI);hearts--;inv=1.7;lvStats.bonks++;run.bonks++;if(lvStats.bonks===1&&lvStats.bonkFree!==0){lvStats.bonkFree=0;floatTxt('No-bonk star lost',boat.x,boat.y+50,'#ffb3b3',11)}boat.s=-40;boat.vx+=nx*110;boat.spin=0.5;shake=0.35;AUD.SFX.bonk();
+const bonkLog=[];function bonk(nx,ny,why){if(inv>0)return;bonkLog.push(why+'@'+Math.round(-boat.y)+'/lv'+lvI);hearts--;inv=diff?1.15:1.7;lvStats.bonks++;run.bonks++;if(lvStats.bonks===1&&lvStats.bonkFree!==0){lvStats.bonkFree=0;floatTxt('No-bonk star lost',boat.x,boat.y+50,'#ffb3b3',11)}boat.s=-40;boat.vx+=nx*110;boat.spin=0.5;shake=0.35;AUD.SFX.bonk();
   const b=bowPos();floatTxt(pick(['BONK!','BOINK!','BONK!','OOF!']),b.x,b.y-20,'#ffe14d',22);splash(b.x,b.y,10,90);
   if(hearts<=0){state='oops';stT=0;oopsN++;AUD.SFX.hurt();say('oops',3);clearInput()}else say(pick(['bonk','bonk2']),2,6)}
 function collide(){const cs=canoeCircles();
@@ -102,7 +102,7 @@ function stepGeese(dt){for(const g of L.geese){if(!g.done&&boat.y<g.y+200&&dad.s
         for(let i=0;i<4;i++)smear.push({x:rr(0.15,0.85)*VW,y:rr(0.1,0.6)*VH,s:rr(0.9,1.6),v:i%3,t:0,dr:rr(10,22)})}
       else{splash(p.x,p.y,8,60,'rgba(240,244,220,0.9)');ring(p.x,p.y,4,26,0.6);floatTxt('Missed me!',p.x,p.y-18,'#fff',13)}}}
   poops=poops.filter(p=>p.t<1.5);for(const s of smear)s.t+=dt;smear=smear.filter(s=>s.t<2.6)}
-function spawnGoose(hat){const side=R()<0.5?-1:1;const lead=1.35,tx=boat.x+boat.vx*0.6,ty=boat.y-(boat.s+L.cur)*lead;
+function spawnGoose(hat){const side=R()<0.5?-1:1;const lead=diff?1.05:1.35,tx=boat.x+boat.vx*0.6,ty=boat.y-(boat.s+L.cur)*lead;
   const sx=camX+(side<0?-50:VW+50),sy=ty-180;
   if(hat){geese.push({kind:'hat',x:sx,y:boat.y-120,vx:0,vy:0,t:0,flap:0,side});AUD.SFX.honk();return}
   geese.push({kind:'poop',x:sx,y:sy,vx:(tx-sx)/lead,vy:(ty-sy)/lead,tt:lead,t:0,flap:0,tx,ty,side});AUD.SFX.honk()}
@@ -138,7 +138,7 @@ function dadSpot(side){const c=riverC(boat.y-110),hw=riverHW(boat.y-110)-30;retu
 // current is halved while Dad is swimming so the rescue is calm even in the rapids
 function curNow(y){return (L.arena&&y<L.arena.y0+60?0:L.cur)*(dadOut()?0.5:1)}
 // ---------- checkpoints / tunnels / finish ----------
-function stepMarkers(dt){for(const c of L.checks)if(!c.hit&&boat.y<c.y){c.hit=1;checkpoint={y:c.y-20,x:c.x};AUD.SFX.check();say('check',2);showBanner('CHECKPOINT!','#ff8a80',1.5);if(hearts<MAXH){hearts=MAXH;floatTxt('Hearts refilled!',boat.x,boat.y-60,'#ff8a80',14)}}
+function stepMarkers(dt){for(const c of L.checks)if(!c.hit&&boat.y<c.y){c.hit=1;checkpoint={y:c.y-20,x:c.x};AUD.SFX.check();say('check',2);showBanner('CHECKPOINT!','#ff8a80',1.5);if(hearts<MAXH()){hearts=MAXH();floatTxt('Hearts refilled!',boat.x,boat.y-60,'#ff8a80',14)}}
   const tn=inTunnel(boat.y-60);if(tn&&!tn.said){tn.said=1;say('tunnel',2)}
   for(const b of L.bridges)if(!b.said&&boat.y-b.y<230&&boat.y>b.y){b.said=1;say('duck',2)}
   for(const d of L.dams)if(!d.said&&boat.y-d.y<300&&boat.y>d.y){d.said=1;if(!saidOnce.dam){saidOnce.dam=1;say('dam',2)}}
@@ -154,7 +154,7 @@ function stepTut(dt){const t=tut;t.t+=dt;
   else if(t.s===3){if(t.t>0.3&&!t.said3){t.said3=1;say('shore',3)}if(bearsLv>=1){t.s=4;t.t=0;setTimeout(()=>say('tut4',2),2600)}}
   else if(t.s===4&&t.t>5.5){tut=null;setTimeout(()=>{if(state==='play'&&lvI===0)say('michigan',1)},1500)}}
 function tutBear(){let best=null;for(const o of L.obj)if(o.t==='bear'&&o.st==='float'&&o.y<boat.y+20&&(!best||o.y>best.y))best=o;return best}
-function respawn(){const cp=checkpoint;boat.x=cp.x;boat.y=cp.y;boat.s=0;boat.vx=0;boat.ang=0;boat.rhythm=0;hearts=MAXH;inv=2.5;geese=[];poops=[];smear=[];
+function respawn(){const cp=checkpoint;boat.x=cp.x;boat.y=cp.y;boat.s=0;boat.vx=0;boat.ang=0;boat.rhythm=0;hearts=MAXH();inv=2.5;geese=[];poops=[];smear=[];
   if(dad.st!=='boat'){dad.st='boat';dad.t=0}dad.lean=0;dad.reach=0;dad.sneeze=0;for(const o of L.obj)if(o.t==='fish'){o.st='wait';o.jumps=0}
   if(boss&&boss.st!=='happy'){boss.st='idle';boss.t=0;boss.hx=boss.x;boss.hy=boss.y+70}state='play';stT=0;clearInput()}
 // ---------- boss: the giant grumpy snapping turtle ----------
