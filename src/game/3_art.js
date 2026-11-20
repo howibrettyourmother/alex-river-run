@@ -53,16 +53,16 @@ function drawAlex(x,y,o){// o: {side,ph,brace,duck,wave,cheer,lamp,turn}
   ell(-4,-9,4,6,'#c9ab7a');ell(4,-9,4,6,'#c9ab7a');
   // body: green shirt arms + red life vest with white straps
   const wv=o.wave?Math.sin(T*14)*0.5:0;
-  if(o.cheer){line(-8,0,-15,-16,'#3fa34d',5);line(8,0,15,-16,'#3fa34d',5);circ(-15,-17,3.4,SKIN);circ(15,-17,3.4,SKIN)}
-  else if(o.wave){line(-8,0,-12,6,'#3fa34d',5);line(8,-1,18,-10+wv*8,'#3fa34d',5);circ(19,-12+wv*8,3.6,SKIN)}
-  else{line(-8,-1,-6,-9,'#3fa34d',5);line(8,-1,6,-9,'#3fa34d',5)}
+  if(o.cheer){line(-8,0,-15,-16,'#1e8a96',5);line(8,0,15,-16,'#1e8a96',5);circ(-15,-17,3.4,SKIN);circ(15,-17,3.4,SKIN)}
+  else if(o.wave){line(-8,0,-12,6,'#1e8a96',5);line(8,-1,18,-10+wv*8,'#1e8a96',5);circ(19,-12+wv*8,3.6,SKIN)}
+  else{line(-8,-1,-6,-9,'#1e8a96',5);line(8,-1,6,-9,'#1e8a96',5)}
   rrect(-10,-6,20,17,6);X.fillStyle='#d8322f';X.fill();X.strokeStyle='#8f1c1a';X.lineWidth=1.2;X.stroke();
   line(-4.5,-6,-4.5,11,'#fff',2);line(4.5,-6,4.5,11,'#fff',2);line(-9,5,9,5,'#fff',1.8);rrect(-2,3,4,4,1);X.fillStyle='#222';X.fill();
-  ell(0,-7,5,2.4,'#3fa34d');
+  ell(0,-7,5,2.4,'#1e8a96');
   // head: short dark brown hair (back of head), ears, a peek of cheek when turned
   const tr=(o.turn||0)*3;circ(-7.4+tr*0.3,-12,2.2,SKIN);circ(7.4+tr*0.3,-12,2.2,SKIN);
   if(tr){ell(tr*2.2,-12.5,6,6.5,SKIN)}
-  circ(0,-13,7.2,'#4a2c1a');ell(-1.5,-16,3.5,2,'#6b432a');
+  circ(0,-13,7.2,'#3a2416');ell(-1.5,-16,3.5,2,'#3a2416');ell(3,-17,2.4,2.2,'#3a2416');ell(-4,-15,2.2,2,'#3a2416');
   if(o.lamp){rrect(-6,-20,12,3,1.5);X.fillStyle='#333';X.fill();circ(0,-20.5,2.4,'#fff8c0')}
   X.restore();
   if(!o.cheer&&!o.wave)paddle(x,y,o.side,o.ph,'#3fbf4a',o.brace,1)}
