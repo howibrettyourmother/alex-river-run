@@ -10,7 +10,7 @@ const AUD=(()=>{
     const bus=v=>{const g=C.createGain();g.gain.value=v;g.connect(master);return g};
     musicBus=bus(0.3);musicDuck=C.createGain();musicDuck.connect(musicBus);sfxBus=bus(0.62);voiceBus=bus(1.2);
     const sr=C.sampleRate;noiseBuf=C.createBuffer(1,sr*2,sr);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=R()*2-1;
-    setInterval(schedule,25);}
+    /* synth disabled */0;}
   function unlock(){try{if(!C)build();if(!C)return;try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}
       if(C.state!=='running')C.resume().catch(()=>{});
       const s=C.createBufferSource();s.buffer=C.createBuffer(1,1,22050);s.connect(C.destination);s.start(0);
@@ -121,7 +121,7 @@ const AUD=(()=>{
     else if(kind==='soft'){if(s16===0||s16===10)kick(t,0.35);if(s16===4||s16===12)snare(t,0.1);if(s16%4===2)hat(t,0.04)}
     else{/* volcano groove: boom-boom-ta with tumbling toms */ if(s16===0||s16===3||s16===8||s16===11)kick(t,0.5);if(s16===4||s16===12)snare(t,0.24);if(s16%2===0)hat(t,0.05);
       if(bar%4===3&&s16>=12)tom(t,[220,190,160,130][s16-12],0.32);else if(s16===14)tom(t,150,0.22)}}
-  function schedule(){if(window.BGM&&BGM.ready)return;if(!C||theme==='off')return;const th=TH[theme];if(!th)return;const sx=60/th.bpm/4;if(nextT<now())nextT=now()+0.05;
+  function schedule(){return;if(!C||theme==='off')return;const th=TH[theme];if(!th)return;const sx=60/th.bpm/4;if(nextT<now())nextT=now()+0.05;
     while(nextT<now()+0.15){const t=nextT,i=step%128,bar=(i/16)|0,s16=i%16,ch=CH[th.prog[bar]];
       if(s16%2===0){const m=th.mel[i/2];if(m>0){let d=1;while(i/2+d<64&&th.mel[i/2+d]===-1)d++;lead(m,t,sx*2*d*0.92,th.lead==='sq'?0.07:0.11,th.lead);
         if(theme==='boss'||theme==='rapids')lead(m-12,t,sx*2*d*0.9,0.03,'tri')}}
