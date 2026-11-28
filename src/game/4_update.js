@@ -18,7 +18,7 @@ function startPlay(){if(state!=='card')return;state='play';stT=0;card=null;clear
 // ---------- particles / floating text ----------
 function splash(x,y,n,sp,col){for(let i=0;i<n;i++){const a=rr(0,TAU),s=rr(0.3,1)*sp;parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:0,max:rr(0.35,0.8),sz:rr(1.5,3.5),col:col||'rgba(235,250,255,0.9)',k:'drop',g:0})}}
 function ring(x,y,r0,r1,dur,col){parts.push({x,y,r0,r1,life:0,max:dur,k:'ring',col:col||'255,255,255'})}
-function pop(x,y,col,n){ring(x,y,4,26,0.35,col||'255,240,160');for(let i=0;i<(n||8);i++){const a=i/(n||8)*TAU+R()*0.3,s=rr(60,110);parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:0,max:rr(0.3,0.5),sz:2.2,col:'rgba('+(col||'255,240,160')+',1)',k:'spark',g:0})}}
+function pop(x,y,col,n){ring(x,y,4,26,0.35,col||'255,240,160');for(let i=0;i<4;i++){const a=rr(0,TAU),s=rr(30,80);parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-20,life:0,max:rr(0.5,0.8),sz:rr(4,7),col:i%2?'#ffe14d':'#fff',k:'star',rot:rr(0,6),g:30})}try{if(boat&&Math.hypot(x-boat.x,y-boat.y)<120)boat.sqT=T;AUD.SFX.sparkle()}catch(e){}for(let i=0;i<(n||8);i++){const a=i/(n||8)*TAU+R()*0.3,s=rr(60,110);parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:0,max:rr(0.3,0.5),sz:2.2,col:'rgba('+(col||'255,240,160')+',1)',k:'spark',g:0})}}
 function floatTxt(s,x,y,col,sz){floats.push({s,x,y,col:col||'#fff',sz:sz||16,t:0})}
 function showBanner(s,col,dur){banner={s,col:col||'#fff',t:0,dur:dur||2}}
 function confetti(n,x,y){for(let i=0;i<n;i++)parts.push({x:x==null?camX+rr(0,VW):x,y:y==null?camY-10:y,vx:rr(-60,60),vy:rr(20,120),life:0,max:rr(2,3.5),sz:rr(3,5),col:pick(['#ff4d6d','#ffd23f','#52d66a','#4fc3f7','#b388ff','#ff8a3d']),k:'conf',rot:rr(0,6),vr:rr(-8,8),g:40})}
@@ -59,7 +59,7 @@ function hitTest(o,cs){// returns {nx,ny} push normal or null
   else if(o.t==='log'){const ca=Math.cos(o.ang)*o.len/2,sa=Math.sin(o.ang)*o.len/2;for(const c of cs){const s=segDist(c.x,c.y,o.x-ca,o.y-sa,o.x+ca,o.y+sa);if(s.d<c.r+o.r)return{nx:(c.x-s.qx)/(s.d||1),ny:(c.y-s.qy)/(s.d||1),pen:c.r+o.r-s.d}}}
   else if(o.t==='dam'){for(const c of cs){if(Math.abs(c.y-o.y)<o.h/2+c.r&&Math.abs(c.x-o.gx)>o.gw/2-c.r*0.6){const nx=0,ny=c.y>o.y?1:-1;return{nx,ny,pen:o.h/2+c.r-Math.abs(c.y-o.y)}}}}
   return null}
-const bonkLog=[];function bonk(nx,ny,why){if(inv>0)return;bonkLog.push(why+'@'+Math.round(-boat.y)+'/lv'+lvI);hearts--;inv=diff?1.15:1.7;lvStats.bonks++;run.bonks++;if(lvStats.bonks===1&&lvStats.bonkFree!==0){lvStats.bonkFree=0;floatTxt('No-bonk star lost',boat.x,boat.y+50,'#ffb3b3',11)}boat.s=-40;boat.vx+=nx*110;boat.spin=0.5;shake=0.35;AUD.SFX.bonk();
+const bonkLog=[];function bonk(nx,ny,why){if(inv>0)return;boat.sqT=T;boat.sqK=1.6;bonkLog.push(why+'@'+Math.round(-boat.y)+'/lv'+lvI);hearts--;inv=diff?1.15:1.7;lvStats.bonks++;run.bonks++;if(lvStats.bonks===1&&lvStats.bonkFree!==0){lvStats.bonkFree=0;floatTxt('No-bonk star lost',boat.x,boat.y+50,'#ffb3b3',11)}boat.s=-40;boat.vx+=nx*110;boat.spin=0.5;shake=0.35;AUD.SFX.bonk();
   const b=bowPos();floatTxt(pick(['BONK!','BOINK!','BONK!','OOF!']),b.x,b.y-20,'#ffe14d',22);splash(b.x,b.y,10,90);
   if(hearts<=0){state='oops';stT=0;oopsN++;AUD.SFX.hurt();say('oops',3);clearInput()}else say(pick(['bonk','bonk2']),2,6)}
 function collide(){const cs=canoeCircles();

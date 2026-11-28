@@ -2,12 +2,17 @@
 let dk=null;// cached half-res headlamp mask for tunnels (cheap on the A10)
 function vis(y,m){return y>camY-(m||80)&&y<camY+VH+(m||80)}
 function drawRiver(){const D=L.D,y0=camY-40,y1=camY+VH+40;X.fillStyle=D.bank;X.fillRect(camX-10,camY-10,VW+20,VH+20);
+  const BKN={willow:'tex_bank_grass',marsh:'tex_bank_marsh',pond:'tex_bank_forest',canal:'tex_bank_grass',rapids:'tex_bank_rock'}[D.style],bkA=BKN&&art(BKN),wtA=art(D.style==='rapids'?'tex_water_rapids':'tex_water_calm');
+  if(bkA){X.globalAlpha=0.9;texFill(bkA,320,camX-10,camY-10,camX+VW+10,camY+VH+10,0,0);X.globalAlpha=1}
   // bank texture: soft patches + fallen leaves on the grass
-  const g0=Math.floor(y0/90),gx0=Math.floor((camX-10)/90);for(let gy=g0;gy<g0+VH/90+3;gy++)for(let gx=gx0;gx<gx0+VW/90+2;gx++){const h=hsh(gx*31+gy*17);ell(gx*90+h*60,gy*90+hsh(gy*7+gx)*60,20+h*16,12+h*8,shade(D.bank,h<0.5?-0.08:0.08));
+  const g0=Math.floor(y0/90),gx0=Math.floor((camX-10)/90);if(!bkA)for(let gy=g0;gy<g0+VH/90+3;gy++)for(let gx=gx0;gx<gx0+VW/90+2;gx++){const h=hsh(gx*31+gy*17);ell(gx*90+h*60,gy*90+hsh(gy*7+gx)*60,20+h*16,12+h*8,shade(D.bank,h<0.5?-0.08:0.08));
     if(h>0.55)dspr(leafSpr(((gx+gy)%5+5)%5),gx*90+h*80,gy*90+30,0.5,h*6)}
   const ys=[];for(let y=y0;y<=y1;y+=20)ys.push(y);ys.push(y1);
   X.beginPath();ys.forEach((y,i)=>{const x=riverC(y)-riverHW(y);i?X.lineTo(x,y):X.moveTo(x,y)});for(let i=ys.length-1;i>=0;i--){const y=ys[i];X.lineTo(riverC(y)+riverHW(y),y)}X.closePath();
-  X.fillStyle=D.water;X.fill();X.strokeStyle=D.edge;X.lineWidth=D.style==='canal'?9:6;X.lineJoin='round';X.stroke();
+  if(bkA){X.strokeStyle='rgba(0,25,10,0.3)';X.lineWidth=40;X.lineJoin='round';X.stroke();X.strokeStyle='rgba(0,25,10,0.22)';X.lineWidth=22;X.stroke()}
+  X.fillStyle=D.water;X.fill();
+  if(wtA){X.save();X.clip();X.globalAlpha=D.style==='rapids'?0.62:0.5;texFill(wtA,380,camX-10,y0,camX+VW+10,y1,0,-(T*(L.cur||20)*0.9));X.globalAlpha=0.16;texFill(wtA,610,camX-10,y0,camX+VW+10,y1,Math.sin(T*0.4)*30,-(T*(L.cur||20)*0.5)+137);X.restore()}
+  X.strokeStyle=D.edge;X.lineWidth=D.style==='canal'?9:6;X.lineJoin='round';X.stroke();
   // sky reflection band (mirror-still water) + inner foam line
   X.beginPath();ys.forEach((y,i)=>{const x=riverC(y)-riverHW(y)*0.55+Math.sin(y*0.01)*12;i?X.lineTo(x,y):X.moveTo(x,y)});for(let i=ys.length-1;i>=0;i--){const y=ys[i];X.lineTo(riverC(y)+riverHW(y)*0.2+Math.sin(y*0.012)*16,y)}X.closePath();
   X.globalAlpha=0.22;X.fillStyle=D.water2;X.fill();X.globalAlpha=1;
@@ -88,7 +93,7 @@ function drawWake(){const sp=boat.s+L.cur;if(sp<20)return;const a=clamp(sp/250,0
   X.strokeStyle='rgba(255,255,255,'+a+')';X.lineWidth=2;for(const k of [-1,1]){X.beginPath();X.moveTo(bx,by);X.lineTo(boat.x+k*34-s*80,boat.y+c*90);X.stroke()}
   for(let i=0;i<3;i++){const k=((T*1.4+i/3)%1);ell(boat.x-s*(50+k*40),boat.y+c*(50+k*40),10+k*16,4+k*4,'rgba(255,255,255,'+(a*0.5*(1-k))+')')}}
 function drawCanoe(){const b=boat;if(inv>0&&Math.floor(T*12)%2&&state==='play'){X.globalAlpha=0.55}
-  drawWake();X.save();X.translate(b.x,b.y);X.rotate(b.ang);
+  drawWake();X.save();X.translate(b.x,b.y);X.rotate(b.ang);{const sq=b.sqT!=null?Math.max(0,1-(T-b.sqT)*2.6):0;if(sq>0){const w=Math.cos((T-b.sqT)*22)*sq*0.07*(b.sqK||1);X.scale(1-w*0.8,1+w)}}
   if(canoeSel==='rocket'&&(b.rhythm>=2||b.s>120)){for(let i=0;i<3;i++){const k=R();ell(0,CL/2+8+k*14,5-k*3,8+k*8,i?'#ffd23f':'#ff6a1f')}}
   const s=canoeSpr(canoeSel);X.drawImage(s.c,-s.w/2,-s.h/2,s.w,s.h);
   // canoe flair: rocket exhaust that grows with speed, pirate flag that flaps, hot dog mustard wiggle
@@ -150,6 +155,7 @@ function drawParts(){for(const p of parts){const k=p.life/p.max;
   if(p.k==='ring'){const r=lerp(p.r0,p.r1,k);X.beginPath();X.ellipse(p.x,p.y,r,r*0.6,0,0,TAU);X.strokeStyle='rgba('+p.col+','+(0.8*(1-k))+')';X.lineWidth=2;X.stroke()}
   else if(p.k==='conf'){X.save();X.translate(p.x,p.y);X.rotate(p.rot);X.fillStyle=p.col;X.fillRect(-p.sz/2,-p.sz/4,p.sz,p.sz/2);X.restore()}
   else if(p.k==='bub'){X.beginPath();X.arc(p.x,p.y,p.sz*(0.6+k*0.6),0,TAU);X.strokeStyle='rgba(220,255,220,'+(1-k)+')';X.lineWidth=1.4;X.stroke()}
+  else if(p.k==='star'){const q=p.sz*(1.1-k*0.6);X.save();X.translate(p.x,p.y);X.rotate(p.rot+k*3);X.globalAlpha=1-k*k;X.fillStyle=p.col;X.beginPath();X.moveTo(0,-q);X.quadraticCurveTo(q*0.14,-q*0.14,q,0);X.quadraticCurveTo(q*0.14,q*0.14,0,q);X.quadraticCurveTo(-q*0.14,q*0.14,-q,0);X.quadraticCurveTo(-q*0.14,-q*0.14,0,-q);X.fill();X.restore();X.globalAlpha=1}
   else if(p.k==='heart'){txt('\u2665',p.x,p.y,p.sz*2.4,p.col,{sw:0})}
   else{X.globalAlpha=1-k;circ(p.x,p.y,p.sz,p.col);X.globalAlpha=1}}}
 function drawFloats(){for(const f of floats){const k=f.t/1.4;X.globalAlpha=1-k*k;txt(f.s,f.x,f.y-k*30,f.sz,f.col,{sw:Math.max(3,f.sz*0.2)});X.globalAlpha=1}}

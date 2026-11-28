@@ -2,7 +2,8 @@
 let UI=[],HUDB=[],fwT=0,newUnlocks=[],titleMsg=null;
 const insL=()=>INS.l/SC,insR=()=>INS.r/SC;
 function btn(id,x,y,w,h){UI.push({id,x,y,w,h})}
-function bigBtn(id,label,cx,cy,w,h,c1,c2,sz){rrect(cx-w/2,cy-h/2+4,w,h,h/2);X.fillStyle='rgba(0,0,0,0.25)';X.fill();rrect(cx-w/2,cy-h/2,w,h,h/2);const g=X.createLinearGradient(0,cy-h/2,0,cy+h/2);g.addColorStop(0,c1);g.addColorStop(1,c2);X.fillStyle=g;X.fill();X.strokeStyle='#fff';X.lineWidth=3;X.stroke();
+function candyGloss(x,y,w,h){const r=h/2;rrect(x+h*0.14,y+2.5,w-h*0.28,h*0.44,r*0.8);const g=X.createLinearGradient(0,y,0,y+h*0.46);g.addColorStop(0,'rgba(255,255,255,0.6)');g.addColorStop(1,'rgba(255,255,255,0.05)');X.fillStyle=g;X.fill();rrect(x+h*0.3,y+h*0.82,w-h*0.6,h*0.1,h*0.05);X.fillStyle='rgba(255,255,255,0.18)';X.fill()}
+function bigBtn(id,label,cx,cy,w,h,c1,c2,sz){rrect(cx-w/2,cy-h/2+4,w,h,h/2);X.fillStyle='rgba(0,0,0,0.25)';X.fill();rrect(cx-w/2,cy-h/2,w,h,h/2);const g=X.createLinearGradient(0,cy-h/2,0,cy+h/2);g.addColorStop(0,c1);g.addColorStop(1,c2);X.fillStyle=g;X.fill();X.strokeStyle='#fff';X.lineWidth=3;X.stroke();candyGloss(cx-w/2,cy-h/2,w,h);
   txt(label,cx,cy+1,sz||Math.round(h*0.42),'#fff',{sw:Math.max(3,h*0.09)});btn(id,cx-w/2,cy-h/2,w,h)}
 function panel(w,h,y,c){const x=VW/2-w/2;rrect(x,y+6,w,h,22);X.fillStyle='rgba(0,20,30,0.35)';X.fill();rrect(x,y,w,h,22);const g=X.createLinearGradient(0,y,0,y+h);g.addColorStop(0,'#fffaf0');g.addColorStop(1,c||'#ffe7c2');X.fillStyle=g;X.fill();X.strokeStyle='#e8762b';X.lineWidth=4;X.stroke();return x}
 function heart(x,y,s,c){X.save();X.translate(x,y);X.scale(s/10,s/10);X.beginPath();X.moveTo(0,4);X.bezierCurveTo(-10,-4,-6,-12,0,-6);X.bezierCurveTo(6,-12,10,-4,0,4);X.fillStyle=c;X.fill();X.restore()}
@@ -95,12 +96,18 @@ function drawOops(){dim(Math.min(0.5,stT));const y=VH/2-70,w=320;panel(w,130,y);
 function drawPaused(){dim(0.55);UI=[];const y=VH/2-120;panel(300,240,y);txt('PAUSED',VW/2,y+32,26,'#fff',{st:'#1e6aa5',sw:6});bigBtn('resume','PADDLE ON!',VW/2,y+86,210,50,'#7cff6b','#2fa84a');
   bigBtn('steer',steerMode==='canoe'?'REAL PADDLING: ON':'REAL PADDLING: OFF',VW/2,y+146,210,38,'#4fc3f7','#1e88e5',12);bigBtn('home','HOME',VW/2,y+200,150,40,'#ffd54f','#ff8f00')}
 const STAR_NAMES=['All woolly bears','All Petoskey stones','No bonks'];
+const uiP=[];let uiLast=0;
+function uiBurst(x,y,n,cols){for(let k=0;k<n;k++){const a=rr(0,TAU),s=rr(70,190);uiP.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-50,t:0,m:rr(0.6,1.1),sz:rr(6,12),c:pick(cols||['#ffffff','#ffe14d','#ff9bd0','#7fe8ff']),r:rr(0,6)})}}
+function drawUIP(){const dt=Math.min(0.05,Math.max(0,T-uiLast));uiLast=T;for(let k=uiP.length-1;k>=0;k--){const p=uiP[k];p.t+=dt;if(p.t>=p.m){uiP.splice(k,1);continue}p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=0.97;p.vy=p.vy*0.97+160*dt;const f=p.t/p.m,q=p.sz*(1.1-f*0.5);
+  X.save();X.translate(p.x,p.y);X.rotate(p.r+f*4);X.globalAlpha=1-f*f;X.fillStyle=p.c;X.beginPath();X.moveTo(0,-q);X.quadraticCurveTo(q*0.14,-q*0.14,q,0);X.quadraticCurveTo(q*0.14,q*0.14,0,q);X.quadraticCurveTo(-q*0.14,q*0.14,-q,0);X.quadraticCurveTo(-q*0.14,-q*0.14,0,-q);X.fill();X.restore()}}
 function miniStars(x,y,st,r){for(let i=0;i<3;i++)star(x+(i-1)*r*2.3,y,r,st&&st[i]?'#ffd23f':'rgba(120,110,100,0.35)')}
 function drawClear(){const t=stT,ci=clearInfo;dim(Math.min(0.4,t*0.5));UI=[];const w=Math.min(480,VW-24),H=Math.min(286,VH-16),y=(VH-H)/2;X.save();const s=easeB(Math.min(1,t*2));X.translate(VW/2,y+H/2);X.scale(s,s);X.translate(-VW/2,-y-H/2);
   const x=panel(w,H,y);txt('LEVEL CLEAR!',VW/2,y+28,26,'#fff',{st:'#2fa84a',sw:7});txt(L.D.name,VW/2,y+52,12,'#1e6aa5',{sw:0});
   const vals=[bearsLv+'/'+L.bearsTotal,stones+'/'+L.stonesTotal,lvStats.bonks?lvStats.bonks+(lvStats.bonks>1?' bonks':' bonk'):'0 bonks'],bw=Math.min(140,(w-30)/3);
   for(let i=0;i<3;i++){const cx=VW/2+(i-1)*(bw+6),on=ci.st[i]&&t>0.5+i*0.35,pp=on?easeB(clamp((t-0.5-i*0.35)*3,0,1)):1;rrect(cx-bw/2,y+64,bw,74,14);X.fillStyle=on?'rgba(255,225,77,0.28)':'rgba(0,0,0,0.06)';X.fill();
-    star(cx,y+88,(on?19:15)*pp,on?'#ffd23f':'rgba(150,140,130,0.45)');if(on&&ci.nw[i]&&t<4)txt('NEW!',cx+bw/2-18,y+74,10,'#e53935',{sw:0});
+    if(on&&!(ci.fx||(ci.fx=[]))[i]){ci.fx[i]=1;uiBurst(cx,y+88,16);try{AUD.SFX.star(i)}catch(e){}}
+    if(on){const gl=X.createRadialGradient(cx,y+88,2,cx,y+88,34*pp);gl.addColorStop(0,'rgba(255,230,120,0.7)');gl.addColorStop(1,'rgba(255,230,120,0)');X.fillStyle=gl;X.fillRect(cx-40,y+48,80,80)}
+    star(cx,y+88,(on?19:15)*pp,on?'#ffd23f':'rgba(150,140,130,0.45)');if(on)star(cx-3,y+85,(on?9:7)*pp,'rgba(255,255,255,0.55)');if(on&&ci.nw[i]&&t<4)txt('NEW!',cx+bw/2-18,y+74,10,'#e53935',{sw:0});
     txt(STAR_NAMES[i],cx,y+114,bw<120?9:10.5,'#5a4a3a',{sw:0});txt(vals[i],cx,y+129,12,on?'#2fa84a':'#b5521c',{sw:0})}
   const n=L.bearsTotal,gap=Math.min(26,(w-40)/Math.max(1,n)),bx0=VW/2-(n-1)*gap/2;for(let i=0;i<n;i++){const ok=i<bearsLv;X.globalAlpha=ok?1:0.25;drawBear(bx0+i*gap,y+156,0,T*6+i,ok?1:0.9);X.globalAlpha=1}
   txt('Time '+fmtT(lvTime)+(ci.newBest?'  NEW BEST!':'')+'   \u2022   Score '+score,VW/2,y+180,13,ci.newBest?'#e53935':'#1d3b4a',{sw:0});
@@ -216,13 +223,16 @@ function coverCheck(){if(portrait)return;const rs=ctlRects();const ov=(x,y,r)=>r
   if(dadOut()&&ov(dad.x-camX,dad.y-camY,22))add('dad',dad.x-camX,dad.y-camY);
   for(const o of L.obj){const sy=o.y-camY;if(sy<0||sy>by-50)continue;if(!['rock','log','pillar','fish','burp','cattail'].includes(o.t))continue;const r=o.t==='log'?o.len/2:o.r||20;if(ov(o.x-camX,sy,r))add(o.t,o.x-camX,sy)}}
 // ---------- render ----------
+let _ps=null,_pt=0;
 function render(){X.setTransform(DPR,0,0,DPR,0,0);X.fillStyle='#12302a';X.fillRect(0,0,SW,SH);
   X.setTransform(DPR*SC,0,0,DPR*SC,OX*DPR,OY*DPR);if(portrait){X.save();X.beginPath();X.rect(0,0,VW,VH);X.clip()}UI=[];
   if(ICONMODE||OGMODE){drawIcon();if(portrait)X.restore();return}
   if(L)drawWorld();
   if(state==='title')drawTitle();else if(state==='records')drawRecords();
   else{if(state==='play'||state==='oops'||state==='bosswin')drawHUD();if(state==='card')drawCard();if(state==='oops')drawOops();if(state==='clear')drawClear();if(state==='end')drawEnd();if(paused)drawPaused()}
+  if(state==='clear'||state==='end')drawUIP();
   if(portrait)X.restore();
+  if(state!==_ps){_ps=state;_pt=T}{const fk=1-(T-_pt)/0.4;if(fk>0&&!ICONMODE){X.save();X.setTransform(DPR,0,0,DPR,0,0);X.globalAlpha=fk*fk*0.6;X.fillStyle='#fff';X.fillRect(0,0,SW,SH);X.restore()}}
   drawTut();if((state==='play'||state==='card')&&!paused)drawControls()}
 function drawIcon(){const W=VW,H=VH;if(!L){buildLevel(0)}const g=X.createLinearGradient(0,0,W,H);g.addColorStop(0,'#5ab3c2');g.addColorStop(1,'#2a6272');X.fillStyle=g;X.fillRect(0,0,W,H);
   X.save();X.translate(W/2,H/2);const s=Math.min(W,H)/400;X.scale(s,s);

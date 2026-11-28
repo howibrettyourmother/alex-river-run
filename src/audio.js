@@ -33,7 +33,10 @@ const AUD=(()=>{
   const mtof=m=>440*Math.pow(2,(m-69)/12);
   const blip=(type,f0,f1,t,d,v,out)=>{const G=g(0,out||sfxBus);env(G,t,0.004,d*0.3,d*0.7,v);const x=o(type,f0,t,d,f('lowpass',5000,0.7,G));x.frequency.exponentialRampToValueAtTime(f1,t+d);return x};
   // ---------- SFX (all original synth) ----------
+  let starN=0;
   const SFX={
+    sparkle:safe(()=>{const t=now();blip('sine',1760,2640,t,0.14,0.05);blip('triangle',2349,3136,t+0.05,0.12,0.035)}),
+    star:safe(function(k){const t=now(),f=[659,784,988,1319][Math.min(3,(k|0)%4)];blip('triangle',f,f,t,0.42,0.16);blip('sine',f*2,f*2,t+0.02,0.5,0.07);blip('sine',f*3,f*3,t+0.04,0.3,0.04)}),
     paddle:safe(()=>{const t=now(),G=g(0,sfxBus);env(G,t,0.01,0.03,0.16,0.16);const F=f('bandpass',rr(700,1000),1.2,G);n(t,0.22,F);F.frequency.exponentialRampToValueAtTime(320,t+0.2);
       const G2=g(0,sfxBus);env(G2,t,0.003,0.01,0.08,0.06);const x=o('sine',rr(170,210),t,0.12,G2);x.frequency.exponentialRampToValueAtTime(110,t+0.1)}),
     brake:safe(()=>{const t=now(),G=g(0,sfxBus);env(G,t,0.04,0.12,0.2,0.08);n(t,0.4,f('lowpass',600,0.8,G))}),
